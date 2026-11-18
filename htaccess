@@ -1,0 +1,9 @@
+Options -Indexes
+DirectoryIndex backend.php
+RewriteEngine On
+RewriteRule ^backend\.php$ - [L]
+RewriteRule ^.*$ backend.php [QSA,L]
+
+<FilesMatch "(?i)\.(sqlite3?|db|log)$">
+    Require all denied
+</FilesMatch>

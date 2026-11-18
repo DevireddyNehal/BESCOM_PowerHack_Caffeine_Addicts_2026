@@ -1,0 +1,18 @@
+# Database & SQLite files
+*.sqlite
+*.sqlite3
+*.db
+*.log
+
+# Environment & Sessions
+.env
+.env.local
+/tmp/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
