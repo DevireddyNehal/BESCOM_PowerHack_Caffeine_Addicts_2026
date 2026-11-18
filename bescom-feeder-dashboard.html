@@ -1,0 +1,2638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BESCOM Service Portal | Demo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+tailwind.config = {
+  theme: { extend: {
+    colors: {
+      stoneBg:'rgb(var(--app-stone-rgb) / <alpha-value>)',
+      cardWhite:'rgb(var(--app-card-rgb) / <alpha-value>)',
+      ink:'rgb(var(--app-ink-rgb) / <alpha-value>)',
+      sage:'rgb(var(--app-good-rgb) / <alpha-value>)',
+      terracotta:'rgb(var(--app-alert-rgb) / <alpha-value>)',
+      amberWatch:'rgb(var(--app-watch-rgb) / <alpha-value>)',
+      hairline:'rgb(var(--app-line-rgb) / <alpha-value>)',
+      softStone:'rgb(var(--app-soft-rgb) / <alpha-value>)',
+      action:'rgb(var(--app-action-rgb) / <alpha-value>)',
+      actionHover:'rgb(var(--app-action-hover-rgb) / <alpha-value>)'
+    },
+    fontFamily: { sans:['Inter','system-ui','sans-serif'], mono:['JetBrains Mono','monospace'] }
+  }}
+};
+</script>
+<style>
+  :root {
+    color-scheme:light;
+    --app-stone-rgb:246 248 251; --app-card-rgb:255 255 255; --app-ink-rgb:16 24 32;
+    --app-good-rgb:0 99 82; --app-alert-rgb:154 47 35; --app-watch-rgb:122 72 0;
+    --app-line-rgb:186 198 211; --app-soft-rgb:231 237 244;
+    --app-action-rgb:18 48 71; --app-action-hover-rgb:12 36 55;
+    --app-ink:#101820; --app-card:#fff; --app-good:#006352; --app-alert:#9a2f23;
+    --app-watch:#7a4800; --app-line:#bac6d3; --app-grid:#dce4ec; --app-neutral:#748496;
+    --app-scenario:#a75500; --app-plan:#1b65a0; --app-soft:#e7edf4;
+  }
+  :root[data-theme="dark"] {
+    color-scheme:dark;
+    --app-stone-rgb:13 20 29; --app-card-rgb:25 36 49; --app-ink-rgb:243 247 251;
+    --app-good-rgb:125 224 194; --app-alert-rgb:255 154 137; --app-watch-rgb:255 208 112;
+    --app-line-rgb:82 99 116; --app-soft-rgb:42 57 73;
+    --app-ink:#f3f7fb; --app-card:#192431; --app-good:#7de0c2; --app-alert:#ff9a89;
+    --app-watch:#ffd070; --app-line:#526374; --app-grid:#39495a; --app-neutral:#a8b5c3;
+    --app-scenario:#ffc266; --app-plan:#82c5ff; --app-soft:#2a3949;
+  }
+  @media (prefers-color-scheme:dark) {
+    :root:not([data-theme]) {
+      color-scheme:dark;
+      --app-stone-rgb:13 20 29; --app-card-rgb:25 36 49; --app-ink-rgb:243 247 251;
+      --app-good-rgb:125 224 194; --app-alert-rgb:255 154 137; --app-watch-rgb:255 208 112;
+      --app-line-rgb:82 99 116; --app-soft-rgb:42 57 73;
+      --app-ink:#f3f7fb; --app-card:#192431; --app-good:#7de0c2; --app-alert:#ff9a89;
+      --app-watch:#ffd070; --app-line:#526374; --app-grid:#39495a; --app-neutral:#a8b5c3;
+      --app-scenario:#ffc266; --app-plan:#82c5ff; --app-soft:#2a3949;
+    }
+  }
+  html { scroll-behavior: smooth; scroll-padding-top: 150px; }
+  body { background:rgb(var(--app-stone-rgb)); color:rgb(var(--app-ink-rgb)); font-family:'Inter',sans-serif; }
+  .mono { font-family:'JetBrains Mono',monospace; font-variant-numeric:tabular-nums; }
+  @keyframes pulseRing { 0%{transform:scale(.95);opacity:.75} 70%{transform:scale(1.25);opacity:0} 100%{opacity:0} }
+  .pulse-alert { transform-box:fill-box; transform-origin:center; animation:pulseRing 1.8s infinite ease-out; }
+  @keyframes flowDash { to { stroke-dashoffset:-24; } }
+  .feeder-flow { stroke-dasharray:6 6; animation:flowDash 1.2s linear infinite; }
+  .tie-flow { stroke-dasharray:4 4; animation:flowDash .9s linear infinite; }
+  input, textarea, select { background-color:rgb(var(--app-card-rgb)); color:rgb(var(--app-ink-rgb)); }
+  input::placeholder, textarea::placeholder { color:rgb(var(--app-ink-rgb) / .7); opacity:1; }
+  input[type=range]{-webkit-appearance:none;appearance:none;background:rgb(var(--app-line-rgb));height:8px;border-radius:999px;outline:none;width:100%}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:rgb(var(--app-action-rgb));border:3px solid rgb(var(--app-card-rgb));box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:rgb(var(--app-action-rgb));border:3px solid rgb(var(--app-card-rgb));box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:pointer}
+  :focus-visible { outline:3px solid rgb(var(--app-action-rgb)); outline-offset:2px; }
+  button:disabled { cursor:not-allowed; }
+  .tip { border-bottom:1px dotted rgb(var(--app-ink-rgb)); cursor:help; }
+  details > summary { cursor:pointer; list-style:none; }
+  details > summary::-webkit-details-marker { display:none; }
+  @media (prefers-reduced-motion: reduce){ *{animation:none!important; scroll-behavior:auto!important} }
+  header { box-shadow:0 4px 18px rgba(32,44,37,.06); }
+  main > section, #step2 > div, #step4 > div { box-shadow:0 2px 8px rgba(32,44,37,.035); }
+  #hero { box-shadow:0 8px 24px rgba(32,44,37,.07); }
+  .auth-brand { background:linear-gradient(145deg,#10263e,#1d4867); color:#fff; }
+  .auth-brand .text-white\/75 { color:rgb(255 255 255 / .88); }
+  .app-overlay { background:rgb(4 12 20 / .72); }
+  .code-surface { background:#10263e; color:#f5f8fc; }
+  .theme-toggle { min-height:44px; border:1px solid rgb(var(--app-line-rgb)); background:rgb(var(--app-card-rgb)); color:rgb(var(--app-ink-rgb)); }
+  .theme-toggle:hover { background:rgb(var(--app-soft-rgb)); }
+  .text-ink\/50, .text-ink\/55, .text-ink\/60, .text-ink\/65 { color:rgb(var(--app-ink-rgb) / .76) !important; }
+  .text-ink\/70 { color:rgb(var(--app-ink-rgb) / .8) !important; }
+  .text-ink\/75 { color:rgb(var(--app-ink-rgb) / .84) !important; }
+  .text-ink\/80, .text-ink\/85 { color:rgb(var(--app-ink-rgb) / .9) !important; }
+  #feederSvg { color:rgb(var(--app-ink-rgb)); }
+  #feederSvg text[fill="#2C3531"], #feederSvg text[fill="#4F7A5E"] { fill:rgb(var(--app-ink-rgb)) !important; }
+  #feederSvg line[stroke="#2C3531"] { stroke:rgb(var(--app-ink-rgb)) !important; }
+  #feederSvg line[stroke="#4F7A5E"] { stroke:rgb(var(--app-good-rgb)) !important; }
+  #feederSvg pattern circle { fill:rgb(var(--app-line-rgb)) !important; }
+  #feederSvg rect[fill="#fff"] { fill:rgb(var(--app-card-rgb)) !important; }
+  #scenarioCards > button { min-height:150px; }
+  #stepNav a { min-height:44px; }
+  .admin-nav-link { min-height:48px; display:flex; align-items:center; justify-content:space-between; gap:.75rem; width:100%; border:1px solid rgb(var(--app-line-rgb)); border-radius:.75rem; padding:.7rem .85rem; text-align:left; font-size:.875rem; font-weight:650; background:rgb(var(--app-card-rgb)); color:rgb(var(--app-ink-rgb)); }
+  .admin-nav-link:hover { background:rgb(var(--app-soft-rgb)); }
+  .admin-nav-link[aria-current="page"] { background:rgb(var(--app-action-rgb)); border-color:rgb(var(--app-action-rgb)); color:#fff; }
+  .admin-nav-count { min-width:1.75rem; border-radius:999px; padding:.15rem .45rem; text-align:center; font-size:.75rem; font-weight:700; background:rgb(var(--app-soft-rgb)); color:rgb(var(--app-ink-rgb)); }
+  .admin-nav-link[aria-current="page"] .admin-nav-count { background:rgb(255 255 255 / .2); color:#fff; }
+  .case-filter { min-height:40px; border:1px solid rgb(var(--app-line-rgb)); border-radius:999px; padding:.45rem .75rem; font-size:.75rem; font-weight:650; background:rgb(var(--app-card-rgb)); color:rgb(var(--app-ink-rgb)); }
+  .case-filter[aria-pressed="true"] { border-color:rgb(var(--app-action-rgb)); background:rgb(var(--app-action-rgb)); color:#fff; }
+  .complaint-choice:has(input:checked) { border-color:rgb(var(--app-action-rgb)); box-shadow:inset 0 0 0 1px rgb(var(--app-action-rgb)); background:rgb(var(--app-action-rgb) / .06); }
+  .complaint-choice:focus-within { outline:3px solid rgb(var(--app-action-rgb)); outline-offset:2px; }
+  @media (max-width:640px) {
+    html { scroll-padding-top:190px; }
+    #scenarioCards > button { min-height:0; }
+    #stepNav a { padding:.5rem; font-size:.75rem; }
+    .admin-nav-link { min-width:150px; }
+  }
+  body.guest header, body.guest main { display:none; }
+  body:not(.guest) #authView { display:none; }
+  body.customer .admin-only, body.worker .admin-only { display:none!important; }
+  body.admin #customerPanel, body.admin #workerPanel,
+  body.customer #adminPanel, body.customer #workerPanel,
+  body.worker #adminPanel, body.worker #customerPanel { display:none!important; }
+  #chatMessages { min-height:150px; max-height:260px; overflow:auto; }
+  .chat-bubble { max-width:90%; white-space:pre-wrap; overflow-wrap:anywhere; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col guest">
+
+<section id="authView" class="min-h-screen w-full bg-stoneBg flex items-center justify-center p-4 sm:p-8">
+  <div class="w-full max-w-5xl grid lg:grid-cols-2 bg-cardWhite border border-hairline rounded-3xl overflow-hidden shadow-xl">
+    <div class="auth-brand p-7 sm:p-10 flex flex-col justify-between min-h-64">
+      <div>
+        <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold">BESCOM service demo</div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold mt-6 leading-tight">A clearer way to report and resolve power issues.</h1>
+        <p class="text-white/75 mt-4 leading-relaxed">Sign in to track your electricity use, report a local problem, or manage service requests.</p>
+      </div>
+      <div class="mt-8 rounded-xl border border-white/15 bg-white/5 p-4 text-sm">
+        <b>Prototype only</b><br>
+        Demo accounts, one-time codes, meter readings, and notifications are simulated. No real BESCOM account or equipment is accessed.
+      </div>
+    </div>
+    <div class="p-6 sm:p-10">
+      <div class="mb-6 flex items-start justify-between gap-3">
+        <div>
+          <h2 class="text-2xl font-bold">Sign in</h2>
+          <p class="text-sm text-ink/70 mt-1">Your account type is detected by the server after sign-in.</p>
+        </div>
+        <button id="authThemeToggle" type="button" class="theme-toggle shrink-0 rounded-lg px-3 py-2 text-xs font-semibold">Dark mode</button>
+      </div>
+      <form id="loginForm" class="space-y-4">
+        <label class="block text-sm font-semibold" for="loginUsername">Consumer ID or staff username
+          <input id="loginUsername" name="username" autocomplete="username" required class="mt-1.5 w-full rounded-lg border border-hairline px-3 py-2.5 font-normal" placeholder="e.g. BES-10001">
+        </label>
+        <label class="block text-sm font-semibold" for="loginPassword">Password
+          <input id="loginPassword" name="password" type="password" autocomplete="current-password" required class="mt-1.5 w-full rounded-lg border border-hairline px-3 py-2.5 font-normal" placeholder="Enter your password">
+        </label>
+        <button id="loginButton" class="w-full rounded-lg bg-action px-4 py-3 text-white font-semibold hover:bg-actionHover" type="submit">Continue securely</button>
+      </form>
+      <form id="otpForm" class="hidden mt-4 space-y-3">
+        <div class="rounded-lg bg-sage/10 border border-sage/30 p-3 text-sm">Password accepted. Enter the one-time code sent to your registered contact.</div>
+        <label class="block text-sm font-semibold" for="otpCode">One-time code
+          <input id="otpCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" class="mt-1.5 w-full rounded-lg border border-hairline px-3 py-2.5 font-mono tracking-widest" placeholder="6-digit code">
+        </label>
+        <p id="demoOtpHint" class="hidden text-xs text-amberWatch"></p>
+        <button class="w-full rounded-lg bg-action px-4 py-3 text-white font-semibold hover:bg-actionHover" type="submit">Verify and open account</button>
+        <button class="w-full rounded-lg border border-hairline px-4 py-2.5 text-sm" type="button" onclick="restartSignIn()">Use a different account</button>
+      </form>
+      <p id="authMessage" class="mt-4 min-h-5 text-sm text-terracotta" role="status" aria-live="polite"></p>
+      <details class="mt-5 rounded-xl border border-hairline bg-stoneBg/60 p-3">
+        <summary class="text-sm font-semibold">Demo sign-in details</summary>
+        <div class="mt-2 text-xs text-ink/70 leading-relaxed">
+          Customer ID: <code>BES-10001</code> · Admin: <code>admin</code> · Worker: <code>worker01</code><br>
+          Demo password: <code>Demo123!</code>. Customer OTP is displayed here only in demo mode.
+        </div>
+      </details>
+      <p class="mt-4 text-[11px] text-ink/70">To use server-side sign-in, serve this page through the included PHP backend. Opening the HTML directly does not authenticate users.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HEADER ============ -->
+<header class="bg-cardWhite border-b border-hairline sticky top-0 z-30">
+  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-action text-white flex items-center justify-center font-extrabold">F</div>
+      <div>
+        <h1 id="appTitle" class="text-base font-bold leading-tight">BESCOM Service Portal</h1>
+        <p id="appSubtitle" class="text-xs text-ink/65">Training demo · simulated data only</p>
+      </div>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <div id="topMetrics" class="admin-only flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-4 text-xs bg-stoneBg border border-hairline rounded-lg px-3 py-2">
+        <div><span class="text-ink/60">Time</span> <b id="simClock" class="mono">19:30</b></div>
+        <div><span class="text-ink/60">Bus voltage</span> <b id="busVoltage" class="mono">11.02 kV</b></div>
+        <div><span class="text-ink/60">Feeder load</span> <b id="feederLoadTop" class="mono">—</b></div>
+      </div>
+      <button class="admin-only px-3 py-2 rounded-lg border border-hairline bg-stoneBg hover:bg-softStone text-sm font-medium" onclick="advance15()" title="Pretend 15 minutes have passed and new meter readings arrived">⏱ Next 15 min</button>
+      <button class="admin-only px-3 py-2 rounded-lg bg-action text-white text-sm font-semibold hover:bg-actionHover" onclick="openHelp()">? How to use</button>
+      <div id="signedInBadge" class="hidden rounded-lg border border-hairline bg-stoneBg px-3 py-2 text-xs font-semibold"></div>
+      <button id="headerThemeToggle" type="button" class="theme-toggle rounded-lg px-3 py-2 text-xs font-semibold">Dark mode</button>
+      <button id="logoutButton" class="hidden px-3 py-2 rounded-lg border border-hairline text-sm font-medium hover:bg-softStone" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+
+  <!-- Step navigator -->
+  <nav class="admin-only border-t border-hairline bg-stoneBg/70" aria-label="Steps">
+    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 py-2 grid grid-cols-2 md:grid-cols-4 gap-2 hidden" id="stepNav"></div>
+  </nav>
+</header>
+
+<main class="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 py-5 space-y-6">
+
+  <div class="admin-only rounded-xl border border-amberWatch/30 bg-amberWatch/10 px-4 py-3 text-sm text-ink" role="note">
+    <b>Demo data:</b> readings and forecasts are simulated. This page is not connected to BESCOM equipment and cannot control switches.
+  </div>
+
+  <section id="adminPanel" class="admin-only hidden space-y-5">
+    <div class="bg-cardWhite rounded-2xl border border-hairline p-5 sm:p-6">
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div><p class="text-xs uppercase tracking-wide text-ink/60 font-bold">Operations desk</p><h2 class="text-2xl font-extrabold mt-1">BESCOM admin workspace</h2><p class="text-sm text-ink/65 mt-1">Choose a workspace to review customer problems, staff, and simulated transformer alerts.</p></div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span id="backendHealth" class="rounded-full bg-softStone px-3 py-1 text-xs font-semibold text-ink/60">Checking server…</span>
+          <span class="rounded-full bg-amberWatch/10 border border-amberWatch/30 px-3 py-1 text-xs font-semibold text-amberWatch">Demo · no real notices or charges</span>
+          <button onclick="refreshAdmin()" class="rounded-lg border border-hairline px-3 py-2 text-xs font-semibold hover:bg-softStone">Refresh</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+        <div class="rounded-xl bg-stoneBg p-4"><div class="text-xs text-ink/60">Open requests</div><b id="adminOpenCount" class="text-2xl">—</b></div>
+        <div class="rounded-xl bg-stoneBg p-4"><div class="text-xs text-ink/60">Awaiting assignment</div><b id="adminUnassignedCount" class="text-2xl">—</b></div>
+        <div class="rounded-xl bg-stoneBg p-4"><div class="text-xs text-ink/60">Worker updates</div><b id="adminWorkerUpdateCount" class="text-2xl">—</b></div>
+        <div class="rounded-xl bg-stoneBg p-4"><div class="text-xs text-ink/60">Penalty reviews</div><b id="adminPenaltyCount" class="text-2xl">—</b></div>
+      </div>
+    </div>
+      <div class="grid grid-cols-1 lg:grid-cols-[210px_minmax(0,1fr)] gap-4 lg:gap-5 items-start">
+        <nav aria-label="Admin workspaces" class="flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0 lg:sticky lg:top-4">
+          <button type="button" class="admin-nav-link" data-admin-view="overview" aria-current="page" onclick="showAdminView('overview')">Overview</button>
+          <button type="button" class="admin-nav-link" data-admin-view="issues" aria-current="false" onclick="showAdminView('issues')">Customer issues <span id="adminIssuesBadge" class="admin-nav-count">0</span></button>
+          <button type="button" class="admin-nav-link" data-admin-view="customers" aria-current="false" onclick="showAdminView('customers')">Customer accounts</button>
+          <button type="button" class="admin-nav-link" data-admin-view="workers" aria-current="false" onclick="showAdminView('workers')">Worker management <span id="adminWorkersBadge" class="admin-nav-count">0</span></button>
+          <button type="button" class="admin-nav-link" data-admin-view="transformers" aria-current="false" onclick="showAdminView('transformers')">Transformer alerts <span id="adminTransformerBadge" class="admin-nav-count">0</span></button>
+          <button type="button" class="admin-nav-link" data-admin-view="planner" aria-current="false" onclick="showAdminView('planner')">Feeder load planner</button>
+        </nav>
+
+        <div class="min-w-0 space-y-5">
+          <section id="adminView-overview" class="admin-view-panel bg-cardWhite rounded-2xl border border-hairline p-5 sm:p-6">
+            <p class="text-xs uppercase tracking-wide text-sage font-bold">At a glance</p>
+            <h3 class="text-xl font-extrabold mt-1">What needs attention?</h3>
+            <p class="text-sm text-ink/70 mt-1">Open a workspace below to review details and take a demo action.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
+              <button type="button" onclick="showAdminView('issues')" class="rounded-xl border border-hairline p-4 text-left hover:bg-stoneBg min-h-24">
+                <span class="text-xs font-bold uppercase tracking-wide text-ink/70">Customer issues</span>
+                <span class="block text-sm mt-1">Review reports, assign a worker, and follow progress.</span>
+              </button>
+              <button type="button" onclick="showAdminView('transformers')" class="rounded-xl border border-hairline p-4 text-left hover:bg-stoneBg min-h-24">
+                <span class="text-xs font-bold uppercase tracking-wide text-ink/70">Transformer alerts</span>
+                <span class="block text-sm mt-1">See simulated near-limit and overloaded readings.</span>
+              </button>
+              <button type="button" onclick="showAdminView('workers')" class="rounded-xl border border-hairline p-4 text-left hover:bg-stoneBg min-h-24">
+                <span class="text-xs font-bold uppercase tracking-wide text-ink/70">Worker management</span>
+                <span class="block text-sm mt-1">Add accounts or manage worker access.</span>
+              </button>
+              <button type="button" onclick="showAdminView('planner')" class="rounded-xl border border-hairline p-4 text-left hover:bg-stoneBg min-h-24">
+                <span class="text-xs font-bold uppercase tracking-wide text-ink/70">Feeder load planner</span>
+                <span class="block text-sm mt-1">Explore the separate demo load-planning tools.</span>
+              </button>
+            </div>
+          </section>
+
+          <section id="adminView-issues" class="admin-view-panel hidden space-y-5">
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
+              <div class="xl:col-span-8 bg-cardWhite rounded-2xl border border-hairline">
+                <div class="px-5 py-4 border-b border-hairline"><h3 class="font-bold text-lg">Customer problem reports</h3><p class="text-sm text-ink/65">Choose a problem type to filter reports. Each card shows what the customer reported and where.</p></div>
+                <div class="px-4 pt-4 flex flex-wrap gap-2" role="group" aria-label="Filter customer problems by type">
+                  <button type="button" class="case-filter" data-case-filter="all" aria-pressed="true" onclick="setAdminCaseFilter('all')">All issues</button>
+                  <button type="button" class="case-filter" data-case-filter="Power outage" aria-pressed="false" onclick="setAdminCaseFilter('Power outage')">Power outage</button>
+                  <button type="button" class="case-filter" data-case-filter="Low voltage" aria-pressed="false" onclick="setAdminCaseFilter('Low voltage')">Low voltage</button>
+                  <button type="button" class="case-filter" data-case-filter="Meter or billing question" aria-pressed="false" onclick="setAdminCaseFilter('Meter or billing question')">Meter or billing</button>
+                  <button type="button" class="case-filter" data-case-filter="Sparking or damaged line" aria-pressed="false" onclick="setAdminCaseFilter('Sparking or damaged line')">Sparking / damaged line</button>
+                  <button type="button" class="case-filter" data-case-filter="Other service problem" aria-pressed="false" onclick="setAdminCaseFilter('Other service problem')">Other</button>
+                </div>
+                <div id="adminCases" class="p-4 space-y-3"><p class="text-sm text-ink/60">Loading requests…</p></div>
+              </div>
+              <div class="xl:col-span-4 bg-cardWhite rounded-2xl border border-hairline">
+                <div class="px-5 py-4 border-b border-hairline"><h3 class="font-bold text-lg">Notifications</h3><p class="text-sm text-ink/65">Customer and worker updates recorded by the demo server.</p></div>
+                <div id="adminNotifications" class="p-4 space-y-3 max-h-[34rem] overflow-auto"></div>
+              </div>
+            </div>
+            <div class="rounded-xl border border-amberWatch/30 bg-amberWatch/10 p-4 text-sm">
+              <b>Penalty safeguard:</b> the demo only creates a review flag. It never calculates or deducts money; an authorized person must verify the record and apply an approved policy outside this prototype.
+            </div>
+          </section>
+
+          <section id="adminView-customers" class="admin-view-panel hidden bg-cardWhite rounded-2xl border border-hairline">
+            <div class="px-5 py-4 border-b border-hairline"><h3 class="font-bold text-lg">Customer accounts</h3><p class="text-sm text-ink/65">Send a notice before requesting account closure. Email, SMS and call actions are simulated; no account is deleted.</p></div>
+            <div id="adminCustomers" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+          </section>
+
+          <section id="adminView-workers" class="admin-view-panel hidden bg-cardWhite rounded-2xl border border-hairline">
+            <div class="px-5 py-4 border-b border-hairline">
+              <h3 class="font-bold text-lg">Worker accounts</h3>
+              <p class="text-sm text-ink/70 mt-1">Worker IDs are usernames. Passwords are saved as secure hashes and cannot be viewed later. Deactivation keeps history; reassign open work first.</p>
+            </div>
+            <div class="p-4 grid grid-cols-1 xl:grid-cols-2 gap-5">
+              <form id="workerCreateForm" class="space-y-3 rounded-xl border border-hairline p-4">
+                <h4 class="font-semibold">Add a worker</h4>
+                <label class="block text-sm font-medium" for="workerFullName">Worker name
+                  <input id="workerFullName" name="full_name" required maxlength="120" class="mt-1 w-full rounded-lg border border-hairline px-3 py-2.5 font-normal" autocomplete="name">
+                </label>
+                <label class="block text-sm font-medium" for="workerUsername">Worker ID / username
+                  <input id="workerUsername" name="username" required minlength="3" maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,63}" title="Use 3–64 letters, numbers, dots, underscores, or hyphens." class="mt-1 w-full rounded-lg border border-hairline px-3 py-2.5 font-normal" autocomplete="off">
+                </label>
+                <label class="block text-sm font-medium" for="workerPassword">Initial password
+                  <input id="workerPassword" name="password" type="password" required minlength="10" maxlength="128" class="mt-1 w-full rounded-lg border border-hairline px-3 py-2.5 font-normal" autocomplete="new-password">
+                  <span class="block text-xs text-ink/70 mt-1">Use at least 10 characters and share it directly with the worker.</span>
+                </label>
+                <button type="submit" class="rounded-lg bg-action text-white px-4 py-2.5 text-sm font-semibold hover:bg-actionHover">Create worker account</button>
+                <p id="workerFormMessage" class="text-sm min-h-5" role="status" aria-live="polite"></p>
+              </form>
+              <div>
+                <h4 class="font-semibold mb-3">Existing worker accounts</h4>
+                <div id="adminWorkerAccounts" class="space-y-3"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="adminView-transformers" class="admin-view-panel hidden bg-cardWhite rounded-2xl border border-hairline p-5 sm:p-6" aria-labelledby="transformerAlertsTitle">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div><p class="text-xs uppercase tracking-wide text-amberWatch font-bold">System notices</p><h3 id="transformerAlertsTitle" class="text-xl font-extrabold mt-1">Transformer alerts</h3><p class="text-sm text-ink/70 mt-1">Alerts use the current simulated load: 90% is near limit; 100% or more is overloaded.</p></div>
+              <span class="rounded-full border border-amberWatch/30 bg-amberWatch/10 px-3 py-1.5 text-xs font-bold">SIMULATED · NOT LIVE EQUIPMENT</span>
+            </div>
+            <p id="transformerAlertSummary" class="mt-5 text-sm font-semibold" role="status" aria-live="polite"></p>
+            <div id="transformerAlertList" class="mt-3 space-y-3"></div>
+          </section>
+        </div>
+      </div>
+  </section>
+
+  <section id="customerPanel" class="hidden space-y-5">
+    <div class="bg-cardWhite rounded-2xl border border-hairline p-5 sm:p-6">
+      <p class="text-xs uppercase tracking-wide text-sage font-bold">Customer account</p>
+      <h2 class="text-2xl font-extrabold mt-1">Hello, <span id="customerName">Customer</span></h2>
+      <p class="text-sm text-ink/65 mt-1">Consumer ID <b id="customerId"></b> · <span id="customerArea"></span></p>
+      <div id="customerUsage" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5"></div>
+    </div>
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
+      <div class="xl:col-span-7 bg-cardWhite rounded-2xl border border-hairline">
+        <div class="px-5 py-4 border-b border-hairline"><h3 class="font-bold text-lg">Report a power problem</h3><p class="text-sm text-ink/65">Tell the location assistant where the issue is. It checks the service area and your registered account location before opening a request.</p></div>
+        <div id="chatMessages" class="p-4 space-y-3" aria-live="polite"></div>
+        <form id="locationForm" class="p-4 pt-0 flex gap-2">
+          <label class="sr-only" for="locationInput">Problem location</label>
+          <input id="locationInput" class="min-w-0 flex-1 rounded-lg border border-hairline px-3 py-2.5 text-sm" required placeholder="Enter your registered area, e.g. Whitefield">
+          <button class="rounded-lg bg-action px-4 py-2.5 text-white text-sm font-semibold hover:bg-actionHover">Check location</button>
+        </form>
+        <form id="complaintForm" class="p-4 pt-0 space-y-3">
+          <fieldset id="complaintFields" disabled class="space-y-3">
+            <fieldset>
+              <legend class="text-sm font-semibold">What problem are you having?</legend>
+              <p class="text-xs text-ink/70 mt-1">Choose the option that best describes your issue.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                <label class="complaint-choice flex items-start gap-3 rounded-xl border border-hairline p-3 cursor-pointer hover:bg-stoneBg">
+                  <input type="radio" name="complaintCategory" value="Power outage" checked class="mt-1 h-4 w-4 accent-action">
+                  <span><b class="block text-sm">Power outage</b><span class="text-xs text-ink/70">No electricity at home or nearby</span></span>
+                </label>
+                <label class="complaint-choice flex items-start gap-3 rounded-xl border border-hairline p-3 cursor-pointer hover:bg-stoneBg">
+                  <input type="radio" name="complaintCategory" value="Low voltage" class="mt-1 h-4 w-4 accent-action">
+                  <span><b class="block text-sm">Low voltage</b><span class="text-xs text-ink/70">Lights dim or appliances are affected</span></span>
+                </label>
+                <label class="complaint-choice flex items-start gap-3 rounded-xl border border-hairline p-3 cursor-pointer hover:bg-stoneBg">
+                  <input type="radio" name="complaintCategory" value="Meter or billing question" class="mt-1 h-4 w-4 accent-action">
+                  <span><b class="block text-sm">Meter or billing</b><span class="text-xs text-ink/70">Question about a meter or bill</span></span>
+                </label>
+                <label class="complaint-choice flex items-start gap-3 rounded-xl border border-hairline p-3 cursor-pointer hover:bg-stoneBg">
+                  <input type="radio" name="complaintCategory" value="Sparking or damaged line" class="mt-1 h-4 w-4 accent-action">
+                  <span><b class="block text-sm">Sparking or damaged line</b><span class="text-xs text-ink/70">Report a visible electrical hazard</span></span>
+                </label>
+                <label class="complaint-choice flex items-start gap-3 rounded-xl border border-hairline p-3 cursor-pointer hover:bg-stoneBg sm:col-span-2">
+                  <input type="radio" name="complaintCategory" value="Other service problem" class="mt-1 h-4 w-4 accent-action">
+                  <span><b class="block text-sm">Other service problem</b><span class="text-xs text-ink/70">Something else that needs attention</span></span>
+                </label>
+              </div>
+            </fieldset>
+            <label class="block text-sm font-semibold" for="complaintDescription">What is happening?
+              <textarea id="complaintDescription" rows="3" maxlength="1000" required class="mt-1 w-full rounded-lg border border-hairline px-3 py-2.5 font-normal" placeholder="Describe the issue and when it started"></textarea>
+            </label>
+            <button class="rounded-lg bg-sage px-4 py-2.5 text-white text-sm font-semibold">Submit complaint</button>
+          </fieldset>
+          <p id="locationStatus" class="text-xs text-ink/60">Confirm your location to continue.</p>
+        </form>
+      </div>
+      <div class="xl:col-span-5 space-y-5">
+        <div class="bg-cardWhite rounded-2xl border border-hairline">
+          <div class="px-5 py-4 border-b border-hairline"><h3 class="font-bold">My requests</h3></div>
+          <div id="customerComplaints" class="p-4 space-y-3"></div>
+        </div>
+        <div class="bg-cardWhite rounded-2xl border border-hairline">
+          <div class="px-5 py-4 border-b border-hairline"><h3 class="font-bold">Account notifications</h3></div>
+          <div id="customerNotifications" class="p-4 space-y-3"></div>
+        </div>
+      </div>
+    </div>
+    <p class="text-xs text-ink/70">Usage is sample data for this prototype. Contact options and service notices are recorded only in this demo.</p>
+  </section>
+
+  <section id="workerPanel" class="hidden space-y-5">
+    <div class="bg-cardWhite rounded-2xl border border-hairline p-5 sm:p-6">
+      <p class="text-xs uppercase tracking-wide text-sage font-bold">Field worker portal</p>
+      <h2 class="text-2xl font-extrabold mt-1">Assigned service requests</h2>
+      <p class="text-sm text-ink/65 mt-1">Update progress or report a blocker. Your update is sent to the admin and customer in this demo.</p>
+    </div>
+    <div id="workerTasks" class="space-y-4"><div class="bg-cardWhite rounded-xl border border-hairline p-4 text-sm text-ink/60">Loading assigned work…</div></div>
+    <p class="text-xs text-ink/70">Worker notes and notifications are simulated. Penalties are never applied automatically.</p>
+  </section>
+
+  <div id="feederPlannerPanel" class="admin-only hidden space-y-5">
+  <div class="bg-cardWhite rounded-2xl border border-hairline p-4 sm:p-5">
+    <p class="text-xs uppercase tracking-wide text-ink/70 font-bold">Separate demo workspace</p>
+    <h2 class="text-xl font-extrabold mt-1">Feeder load planner</h2>
+    <p class="text-sm text-ink/70 mt-1">Explore simulated transformer loading and practice a plan. Nothing here operates real equipment.</p>
+  </div>
+
+  <!-- ============ STATUS HERO (go / no-go) ============ -->
+  <section id="hero" class="admin-only rounded-2xl border-2 p-5 sm:p-6" aria-live="polite"></section>
+
+  <!-- ============ STEP 1 ============ -->
+  <section id="step1" class="admin-only bg-cardWhite rounded-2xl border border-hairline">
+    <div class="px-5 py-4 border-b border-hairline">
+      <h2 class="text-lg font-bold"><span class="inline-flex w-7 h-7 rounded-full bg-action text-white text-sm items-center justify-center mr-2">1</span>What situation do you want to check?</h2>
+      <p class="text-sm text-ink/70 mt-1">Pick one. The numbers below will update. Nothing here changes real equipment.</p>
+    </div>
+    <div class="p-5 space-y-4">
+      <div id="scenarioCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
+      <details class="rounded-lg border border-hairline bg-stoneBg/60">
+        <summary class="px-4 py-2.5 text-sm font-medium flex items-center justify-between">
+          <span>Fine-tune demand yourself (optional)</span><span class="text-ink/70 text-xs">tap to open</span>
+        </summary>
+        <div class="px-4 pb-4 pt-1">
+          <div class="flex items-center gap-4">
+            <label for="multSlider" class="text-sm whitespace-nowrap">Demand vs normal:</label>
+            <input id="multSlider" type="range" min="80" max="135" value="125" oninput="onCustomMult(this.value)" />
+            <b id="multLabel" class="mono text-sm w-14 text-right">+25%</b>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ STEP 2 ============ -->
+  <section id="step2" class="admin-only grid grid-cols-1 xl:grid-cols-12 gap-5">
+    <div class="xl:col-span-7 bg-cardWhite rounded-2xl border border-hairline flex flex-col">
+      <div class="px-5 py-4 border-b border-hairline">
+        <h2 class="text-lg font-bold"><span class="inline-flex w-7 h-7 rounded-full bg-action text-white text-sm items-center justify-center mr-2">2</span>Which transformers are in trouble?</h2>
+        <p class="text-sm text-ink/70 mt-1">Each circle is a transformer showing how full it is <i>after your plan in Step 3</i>. Tap one for details.</p>
+      </div>
+      <div class="p-3 sm:p-4 bg-stoneBg flex-1">
+        <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium mb-2 px-1">
+          <span>✓ <b class="text-sage">OK</b> below 90%</span>
+          <span>! <b class="text-amberWatch">Near limit</b> 90–99%</span>
+          <span>✕ <b class="text-terracotta">Overloaded</b> 100%+</span>
+        </div>
+        <svg id="feederSvg" viewBox="0 0 860 400" class="w-full h-auto select-none" role="img" aria-label="Feeder diagram">
+          <defs><pattern id="gridDots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="#DCDAD3"/></pattern></defs>
+          <rect width="860" height="400" fill="url(#gridDots)" rx="8"/>
+          <g transform="translate(24,28)">
+            <rect width="170" height="70" rx="8" fill="#fff" stroke="#2C3531" stroke-width="2"/>
+            <text x="85" y="28" text-anchor="middle" font-weight="700" font-size="14" fill="#2C3531">SUBSTATION</text>
+            <text x="85" y="46" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#4F7A5E" font-weight="600">Power comes in here</text>
+            <text id="svgSubLoad" x="85" y="61" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="#2C3531" opacity=".75"></text>
+          </g>
+          <line x1="194" y1="63" x2="775" y2="63" stroke="#2C3531" stroke-width="3.5" stroke-linecap="round"/>
+          <line x1="194" y1="63" x2="775" y2="63" stroke="#4F7A5E" stroke-width="2" class="feeder-flow"/>
+          <text x="485" y="50" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" font-weight="600" fill="#2C3531" opacity=".7">MAIN 11 kV LINE</text>
+          <line x1="295" y1="63" x2="295" y2="150" stroke="#2C3531" stroke-width="2"/>
+          <line x1="515" y1="63" x2="515" y2="150" stroke="#2C3531" stroke-width="2"/>
+          <line x1="735" y1="63" x2="735" y2="150" stroke="#2C3531" stroke-width="2"/>
+          <g id="tieLayer"></g>
+          <g id="svgDtrLayer"></g>
+        </svg>
+
+        <div id="nodeInspector" class="mt-3 bg-cardWhite border border-hairline rounded-xl p-4"></div>
+      </div>
+    </div>
+
+    <div class="xl:col-span-5 bg-cardWhite rounded-2xl border border-hairline flex flex-col">
+      <div class="px-5 py-4 border-b border-hairline">
+        <h3 class="text-base font-bold">Transformer checklist <span class="text-xs font-normal text-ink/60">(before any fix)</span></h3>
+        <p class="text-sm text-ink/70 mt-0.5">Sorted so the most urgent one is first.</p>
+      </div>
+      <div id="watchlist" class="p-4 space-y-3 flex-1"></div>
+      <div class="px-5 py-3.5 bg-stoneBg/50 border-t border-hairline rounded-b-2xl">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold uppercase tracking-wide text-ink/75">Total feeder load, next 15 min</span>
+          <span class="text-xs mono text-sage font-semibold">15-min estimate · demo</span>
+        </div>
+        <div class="h-28"><canvas id="forecastChart" role="img" aria-label="Estimated feeder load over the next 15 minutes"></canvas><p id="forecastFallback" class="hidden text-xs text-ink/60">Chart unavailable. See the 15-minute estimates in the checklist.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 3 ============ -->
+  <section id="step3" class="admin-only bg-cardWhite rounded-2xl border border-hairline">
+    <div class="px-5 py-4 border-b border-hairline flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="text-lg font-bold"><span class="inline-flex w-7 h-7 rounded-full bg-action text-white text-sm items-center justify-center mr-2">3</span>Try moving load between transformers</h2>
+        <p class="text-sm text-ink/70 mt-1">This is a practice sandbox. Moving load here does <b>not</b> operate any switch.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button onclick="suggestFix()" class="px-4 py-2.5 rounded-lg bg-action text-white text-sm font-semibold hover:bg-actionHover shadow-sm">✨ Suggest the best fix for me</button>
+        <button onclick="resetTransfers()" class="px-3 py-2.5 rounded-lg bg-stoneBg hover:bg-softStone border border-hairline text-sm font-medium">Clear plan</button>
+      </div>
+    </div>
+
+    <div class="p-5 grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-5 space-y-4">
+        <div id="transferControls" class="space-y-3"></div>
+        <button onclick="applyDeck()" class="text-xs underline text-ink/70 hover:text-ink">Load the pitch-deck example (35 + 10 kVA → DTR-01)</button>
+      </div>
+
+      <div class="lg:col-span-7 space-y-3">
+        <div id="checks" class="rounded-xl border p-4"></div>
+        <div class="bg-stoneBg rounded-xl border border-hairline p-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+            <h3 class="text-sm font-bold">How full is each transformer?</h3>
+            <span class="text-xs text-ink/60">Dashed lines: 90% = near limit, 100% = overloaded</span>
+          </div>
+          <div class="relative h-64"><canvas id="barChart" role="img" aria-label="Transformer load before and after the proposed plan"></canvas><p id="barChartFallback" class="hidden text-sm text-ink/60 p-4">Charts are unavailable, but the transformer checklist and safety checks still work.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 4 ============ -->
+  <section id="step4" class="admin-only grid grid-cols-1 xl:grid-cols-12 gap-5">
+    <div class="xl:col-span-5 bg-cardWhite rounded-2xl border border-hairline">
+      <div class="px-5 py-4 border-b border-hairline">
+        <h2 class="text-lg font-bold"><span class="inline-flex w-7 h-7 rounded-full bg-action text-white text-sm items-center justify-center mr-2">4</span>Your decision</h2>
+        <p class="text-sm text-ink/70 mt-1">This demo only records a practice decision. No BESCOM operator or field crew receives it.</p>
+      </div>
+      <div class="p-5 space-y-4">
+        <div id="verdict" class="rounded-xl border p-4"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button id="approveBtn" onclick="logDecision('APPROVED')" class="px-4 py-3 rounded-lg bg-action text-white text-sm font-semibold hover:bg-actionHover disabled:bg-softStone disabled:text-ink/70">✓ Record demo approval</button>
+          <button onclick="logDecision('REJECTED')" class="px-4 py-3 rounded-lg bg-stoneBg hover:bg-softStone border border-hairline text-sm font-semibold">✕ Reject &amp; start over</button>
+        </div>
+        <p id="approveHint" class="text-xs text-ink/70"></p>
+      </div>
+    </div>
+
+    <div class="xl:col-span-7 bg-cardWhite rounded-2xl border border-hairline">
+      <div class="px-5 py-4 border-b border-hairline flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold">Demo decision history</h3>
+          <p class="text-sm text-ink/70 mt-0.5">Demo decisions stay in this page until it is refreshed.</p>
+        </div>
+        <span id="auditCount" class="text-xs mono text-ink/60"></span>
+      </div>
+      <div class="p-4">
+        <div class="border border-hairline rounded-lg overflow-x-auto max-h-72 overflow-y-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-stoneBg text-xs text-ink/70 border-b border-hairline sticky top-0">
+              <tr><th class="py-2 px-3">When / who</th><th class="py-2 px-3">What was planned</th><th class="py-2 px-3">Result (DTR-01 / 02 / 03)</th><th class="py-2 px-3 text-right">Decision</th></tr>
+            </thead>
+            <tbody id="auditBody" class="divide-y divide-hairline"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="admin-only flex flex-wrap items-center justify-between gap-2 text-xs text-ink/60 pb-6">
+    <span>Team Caffeine Addicts · CMR University (CSE AI &amp; ML) · BESCOM Power Hack 2026</span>
+    <button onclick="toggleDev(true)" class="underline hover:text-ink">For developers: backend code &amp; API samples</button>
+  </footer>
+  </div>
+</main>
+
+<!-- ============ TOAST ============ -->
+<div id="toast" class="hidden fixed bottom-5 right-5 left-5 sm:left-auto z-50 max-w-md bg-action text-white px-4 py-3 rounded-xl shadow-lg flex items-start gap-3" role="status">
+  <div class="text-sm leading-relaxed flex-1"><div id="toastTitle" class="font-semibold"></div><div id="toastMsg" class="text-white/80 mt-0.5"></div></div>
+  <button onclick="hideToast()" class="text-white/70 hover:text-white text-lg leading-none" aria-label="Dismiss">&times;</button>
+</div>
+
+<!-- ============ HELP / TOUR MODAL ============ -->
+<div id="helpModal" class="hidden fixed inset-0 z-50 app-overlay flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+  <div class="bg-cardWhite rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div class="px-6 py-5 border-b border-hairline flex items-start justify-between gap-4">
+      <div>
+        <h2 id="helpTitle" class="text-xl font-bold">Welcome. Here's how this works.</h2>
+        <p class="text-sm text-ink/70 mt-1">A transformer is "overloaded" when it carries more power than it is rated for. This tool helps you decide whether moving some load to a neighbour is safe.</p>
+      </div>
+      <button onclick="closeHelp()" class="text-2xl leading-none text-ink/60 hover:text-ink" aria-label="Close">&times;</button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <ol class="space-y-3 text-sm">
+        <li class="flex gap-3"><span class="w-7 h-7 shrink-0 rounded-full bg-action text-white flex items-center justify-center font-bold">1</span><div><b>Choose a situation.</b> Normal evening, a +25% demand surge, or heavy rain.</div></li>
+        <li class="flex gap-3"><span class="w-7 h-7 shrink-0 rounded-full bg-action text-white flex items-center justify-center font-bold">2</span><div><b>Read the label and symbol.</b> ✓ OK, ! Near limit, and ✕ Overloaded. Color is only an extra cue.</div></li>
+        <li class="flex gap-3"><span class="w-7 h-7 shrink-0 rounded-full bg-action text-white flex items-center justify-center font-bold">3</span><div><b>Test a fix.</b> Press <i>Suggest the best fix</i> or drag the sliders to move load. Re-check each written status.</div></li>
+        <li class="flex gap-3"><span class="w-7 h-7 shrink-0 rounded-full bg-action text-white flex items-center justify-center font-bold">4</span><div><b>Decide.</b> <i>Approve</i> is only enabled when no transformer would be overloaded. Everything is logged.</div></li>
+      </ol>
+      <div class="rounded-xl bg-stoneBg border border-hairline p-4 text-sm">
+        <div class="font-bold mb-2">Plain-English glossary</div>
+        <dl class="space-y-1.5 text-ink/85">
+          <div><dt class="inline font-semibold">DTR</dt> <dd class="inline">: distribution transformer, the grey box on a pole or pad that steps 11 kV down to household voltage.</dd></div>
+          <div><dt class="inline font-semibold">kVA</dt> <dd class="inline">: how much load a transformer carries or is rated for.</dd></div>
+          <div><dt class="inline font-semibold">Tie switch</dt> <dd class="inline">: a normally-open link between two transformers' low-voltage networks, used to share load.</dd></div>
+          <div><dt class="inline font-semibold">90% watchline</dt> <dd class="inline">: our early-warning level, set before the transformer is actually full.</dd></div>
+          <div><dt class="inline font-semibold">Risk indicator</dt> <dd class="inline">: a simulated 0 to 1 demo value. It is not a live model output.</dd></div>
+        </dl>
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-hairline flex justify-end gap-2">
+      <button onclick="closeHelp()" class="px-5 py-2.5 rounded-lg bg-action text-white text-sm font-semibold hover:bg-actionHover">Got it, start</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DEVELOPER DRAWER ============ -->
+<div id="devDrawer" class="hidden fixed inset-0 z-50 app-overlay flex justify-end">
+  <div class="bg-cardWhite w-full max-w-4xl h-full shadow-2xl border-l border-hairline flex flex-col">
+    <div class="px-6 py-4 bg-action text-white flex items-center justify-between">
+      <div>
+        <h2 class="text-base font-bold">Developer tools</h2>
+        <p class="text-xs text-white/70">Example code only · not connected to this dashboard or BESCOM</p>
+      </div>
+      <button onclick="toggleDev(false)" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-semibold">&times; Close</button>
+    </div>
+    <div class="px-6 py-2.5 bg-stoneBg border-b border-hairline flex flex-wrap items-center justify-between gap-2">
+      <div class="flex gap-2" id="devTabs"></div>
+      <button onclick="downloadBundle()" class="px-3.5 py-1.5 rounded-lg bg-sage hover:bg-sage/90 text-white text-xs font-semibold">⬇ Download backend.php</button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-6 bg-stoneBg space-y-4">
+      <div id="dev-liveApi" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-cardWhite p-4 rounded-xl border border-hairline"><div class="text-xs mono font-bold text-sage mb-2">GET /api/v1/telemetry/15min</div><pre id="jsonTel" class="code-surface text-[11px] mono p-3 rounded-lg overflow-x-auto max-h-60"></pre></div>
+          <div class="bg-cardWhite p-4 rounded-xl border border-hairline"><div class="text-xs mono font-bold text-terracotta mb-2">POST /api/v1/scenario/simulate-transfer</div><pre id="jsonScen" class="code-surface text-[11px] mono p-3 rounded-lg overflow-x-auto max-h-60"></pre></div>
+        </div>
+        <div class="bg-cardWhite p-4 rounded-xl border border-hairline"><div class="text-xs mono font-bold mb-2">POST /api/v1/forecast/predict</div><pre id="jsonFc" class="code-surface text-[11px] mono p-3 rounded-lg overflow-x-auto max-h-48"></pre></div>
+      </div>
+      <div id="dev-php" class="hidden space-y-2"><div class="flex items-center justify-between gap-3"><p class="text-xs text-ink/70">PHP 8+ with PDO SQLite · from this folder run <code>php -S 127.0.0.1:8000 backend.php</code></p><button onclick="copyCode('phpSrc')" class="px-2.5 py-1 rounded bg-cardWhite border border-hairline text-xs font-medium hover:bg-softStone">Copy PHP</button></div><pre id="phpSrc" class="code-surface text-[11px] mono p-4 rounded-xl overflow-x-auto leading-relaxed"></pre></div>
+      <div id="dev-sql" class="hidden space-y-2"><button onclick="copyCode('sqlSrc')" class="px-2.5 py-1 rounded bg-cardWhite border border-hairline text-xs font-medium hover:bg-softStone">Copy</button><pre id="sqlSrc" class="code-surface text-[11px] mono p-4 rounded-xl overflow-x-auto leading-relaxed"></pre></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== STATE =====================
+const RATED_TOTAL = 610;
+const state = {
+  minutes: 19*60+30,
+  scenario: 'surge25',
+  mult: 1.25,
+  sel: 'DTR-02',
+  transfers: { t12:0, t13:0, t23:0 },   // +t12: DTR-02→01, +t13: DTR-03→01, +t23: DTR-02→03
+  dtrs: {
+    'DTR-01': { id:'DTR-01', name:'Transformer 01', node:'Node 03', rating:250, base:170, x:295, y:190,
+      clusters:[{id:'LC-1A',name:'Residential North',share:.38},{id:'LC-1B',name:'Commercial Retail',share:.34},{id:'LC-1C',name:'Clinic & Civic',share:.28}] },
+    'DTR-02': { id:'DTR-02', name:'Transformer 02', node:'Node 05', rating:200, base:170, x:515, y:190,
+      clusters:[{id:'LC-2A',name:'EV Charging Hub',share:.37},{id:'LC-2B',name:'High-Density Apts',share:.35},{id:'LC-2C',name:'Small Workshops',share:.28}] },
+    'DTR-03': { id:'DTR-03', name:'Transformer 03', node:'Node 07', rating:160, base:120, x:735, y:190,
+      clusters:[{id:'LC-3A',name:'IT Park Annex',share:.36},{id:'LC-3B',name:'Mixed Residential',share:.34},{id:'LC-3C',name:'Street & Metro Feed',share:.30}] }
+  },
+  audit: [
+    { time:'19:15', op:'Demo operator', scen:'+25% surge', action:'Move 20 kVA DTR-02 → DTR-01', post:'93% / 96% / 94%', status:'REJECTED' },
+    { time:'18:45', op:'Demo operator', scen:'Normal evening', action:'No transfer (monitor DTR-02)', post:'68% / 85% / 75%', status:'APPROVED' },
+    { time:'18:00', op:'Demo operator', scen:'Data check', action:'15-min meter data quality OK', post:'64% / 79% / 71%', status:'APPROVED' }
+  ]
+};
+const SCENARIOS = {
+  baseline:{ icon:'☀️', title:'Normal evening', desc:'Typical load. Good for seeing the starting point.', mult:1.00 },
+  surge25:{ icon:'⚡', title:'+25% demand surge', desc:'Evening peak with EV charging. Pushes DTR-02 over its limit.', mult:1.25 },
+  weather:{ icon:'🌧️', title:'Heavy rain', desc:'Weather raises demand unevenly, hitting DTR-02 and DTR-03 hardest.', mult:1.16 },
+  custom:{ icon:'🎚️', title:'Custom', desc:'Use the demand slider below to set your own level.', mult:null }
+};
+let barChart=null, fcChart=null;
+
+function uiColor(token) {
+  return getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+}
+
+// ===================== ENGINE =====================
+function compute(tr = state.transfers) {
+  const weather = state.scenario === 'weather';
+  const wf = { 'DTR-01': weather?1.04:1, 'DTR-02': weather?1.12:1, 'DTR-03': weather?1.09:1 };
+  const out = {}; let totStress = 0, totPost = 0;
+  const delta = { 'DTR-01': tr.t12 + tr.t13, 'DTR-02': -tr.t12 - tr.t23, 'DTR-03': -tr.t13 + tr.t23 };
+  for (const k in state.dtrs) {
+    const d = state.dtrs[k];
+    const stress = +(d.base * state.mult * wf[k]).toFixed(1);
+    const post = Math.max(0, +(stress + delta[k]).toFixed(1));
+    const r = { ...d, stressKva:stress, post, delta:delta[k],
+      basePct: Math.round(d.base/d.rating*100),
+      stressPct: Math.round(stress/d.rating*100),
+      postPct: Math.round(post/d.rating*100) };
+    r.forecastKva = +(stress * (state.scenario==='baseline'?1.015:1.032)).toFixed(1);
+    r.forecastPct = Math.round(r.forecastKva/d.rating*100);
+    const tie = (k === 'DTR-01' && delta[k] > 30) ? 0.012 : 0;
+    const vd = (r.postPct / 100) * 0.038 + tie + (weather ? 0.008 : 0);
+    r.vDev = +(vd * 100).toFixed(1);
+    r.ltKv = +(0.415 * (1 - vd)).toFixed(3);
+    if (r.stressPct >= 100) {
+      r.risk = weather ? 0.94 : 0.89;
+      r.why = weather
+        ? 'Heavy rain surge raises moisture and fault risk'
+        : (k === 'DTR-02'
+          ? 'Evening EV charging is 21% above the 7-day median'
+          : 'Running above its rated capacity for a sustained period');
+    } else if (r.stressPct >= 90) {
+      r.risk = 0.72;
+      r.why = weather ? 'Weather is pushing up reactive demand' : 'Getting close to the 90% watchline; phase B looks unbalanced';
+    } else {
+      r.risk = 0.18;
+      r.why = 'Load pattern is normal for this time of day';
+    }
+    out[k]=r; totStress+=stress; totPost+=post;
+  }
+  const arr = Object.values(out);
+  const maxV = Math.max(...arr.map(d=>d.vDev));
+  return {
+    dtrs:out, totStress:+totStress.toFixed(1), totPost:+totPost.toFixed(1),
+    feederPct:+(totPost/RATED_TOTAL*100).toFixed(1),
+    busKv:+(11.08 - (totPost/RATED_TOTAL)*.065).toFixed(2),
+    stressOver100: arr.filter(d=>d.stressPct>=100), stressOver90: arr.filter(d=>d.stressPct>=90),
+    postOver100: arr.filter(d=>d.postPct>=100), postOver90: arr.filter(d=>d.postPct>=90),
+    maxV, vOk: maxV<=6, anyTransfer: Object.values(tr).some(v=>v!==0)
+  };
+}
+function verdictOf(m) {
+  if (m.postOver100.length || !m.vOk) return 'stop';
+  if (m.postOver90.length) return 'caution';
+  return 'go';
+}
+function st(pct) {
+  if (pct>=100) return { key:'bad', label:'Overloaded', icon:'✕', hex:uiColor('--app-alert'), txt:'text-terracotta', bg:'bg-terracotta/10', bd:'border-terracotta/40' };
+  if (pct>=90) return { key:'warn', label:'Near limit', icon:'!', hex:uiColor('--app-watch'), txt:'text-amberWatch', bg:'bg-amberWatch/10', bd:'border-amberWatch/40' };
+  return { key:'ok', label:'OK', icon:'✓', hex:uiColor('--app-good'), txt:'text-sage', bg:'bg-sage/10', bd:'border-sage/40' };
+}
+function planText(tr = state.transfers) {
+  const p=[];
+  if (tr.t12) p.push(`${Math.abs(tr.t12)} kVA from ${tr.t12>0?'DTR-02 to DTR-01':'DTR-01 to DTR-02'}`);
+  if (tr.t13) p.push(`${Math.abs(tr.t13)} kVA from ${tr.t13>0?'DTR-03 to DTR-01':'DTR-01 to DTR-03'}`);
+  if (tr.t23) p.push(`${Math.abs(tr.t23)} kVA from ${tr.t23>0?'DTR-02 to DTR-03':'DTR-03 to DTR-02'}`);
+  return p.length ? 'Move ' + p.join(' and ') : 'No load moved';
+}
+
+// Auto-suggest: search all slider combos, minimise the worst transformer, then the smallest move
+function suggestFix() {
+  const saved = { ...state.transfers };
+  let best=null;
+  for (let a=-50;a<=60;a+=5) for (let b=-40;b<=50;b+=5) for (let c=-40;c<=40;c+=5) {
+    const m = compute({t12:a,t13:b,t23:c});
+    if (!m.vOk) continue;
+    const worst = Math.max(...Object.values(m.dtrs).map(d=>d.post/d.rating));
+    const effort = Math.abs(a)+Math.abs(b)+Math.abs(c);
+    const score = Math.round(worst*1000) + effort*0.01;
+    if (!best || score<best.score) best={score,a,b,c,worst};
+  }
+  state.transfers = best ? { t12:best.a, t13:best.b, t23:best.c } : saved;
+  renderAll();
+  const m = compute();
+  const v = verdictOf(m);
+  if (v==='stop') showToast('No safe transfer exists', 'Even the most balanced split leaves a transformer overloaded. Total demand is too high; consider curtailing load or using a neighbouring feeder.');
+  else showToast('Best fix found', `${planText()}. Highest transformer is now ${Math.max(...Object.values(m.dtrs).map(d=>d.postPct))}%.`);
+  document.getElementById('step3').scrollIntoView();
+}
+
+// ===================== RENDER =====================
+function renderAll(preserveTransferControls = false) {
+  const m = compute();
+  const v = verdictOf(m);
+  const h = String(Math.floor(state.minutes/60)%24).padStart(2,'0'), mi = String(state.minutes%60).padStart(2,'0');
+  document.getElementById('simClock').textContent = `${h}:${mi} IST`;
+  document.getElementById('busVoltage').textContent = `${m.busKv} kV`;
+  document.getElementById('feederLoadTop').textContent = `${m.totPost} / ${RATED_TOTAL} kVA`;
+  renderHero(m, v); renderStepNav(m, v); renderScenarios(); renderTopology(m);
+  renderWatchlist(m);
+  renderTransformerAlerts(m);
+  if (!preserveTransferControls) renderTransfers();
+  renderChecks(m, v); renderVerdict(m, v); renderAudit(); renderDev(m);
+  updateCharts(m);
+}
+
+function showAdminView(view) {
+  const isPlanner = view === 'planner';
+  if (!isPlanner && !document.getElementById(`adminView-${view}`)) view = 'overview';
+  document.querySelectorAll('.admin-view-panel').forEach(panel => {
+    panel.classList.toggle('hidden', panel.id !== `adminView-${view}`);
+  });
+  document.getElementById('feederPlannerPanel').classList.toggle('hidden', !isPlanner);
+  document.getElementById('stepNav').classList.toggle('hidden', !isPlanner);
+  document.querySelectorAll('[data-admin-view]').forEach(button => {
+    button.setAttribute('aria-current', button.dataset.adminView === view ? 'page' : 'false');
+  });
+  if (isPlanner) document.getElementById('feederPlannerPanel').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function renderTransformerAlerts(m) {
+  const alerts = Object.values(m.dtrs)
+    .filter(d => d.stressPct >= 90)
+    .sort((a, b) => b.stressPct - a.stressPct);
+  const badge = document.getElementById('adminTransformerBadge');
+  if (badge) badge.textContent = String(alerts.length);
+  const summary = document.getElementById('transformerAlertSummary');
+  const list = document.getElementById('transformerAlertList');
+  if (!summary || !list) return;
+  summary.textContent = alerts.length
+    ? `${alerts.length} simulated transformer${alerts.length === 1 ? '' : 's'} need attention.`
+    : 'No simulated transformer alerts at the current load.';
+  list.innerHTML = alerts.length ? alerts.map(d => {
+    const overloaded = d.stressPct >= 100;
+    const severity = overloaded ? 'Overloaded' : 'Near limit';
+    const className = overloaded
+      ? 'border-terracotta/40 bg-terracotta/10'
+      : 'border-amberWatch/40 bg-amberWatch/10';
+    return `<article class="rounded-xl border ${className} p-4">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h4 class="font-bold">${severity}: ${escapeHtml(d.id)}</h4>
+        <span class="rounded-full border border-current px-2.5 py-1 text-xs font-bold">${d.stressPct}% loading</span>
+      </div>
+      <p class="mt-2 text-sm">${escapeHtml(d.name)} is carrying <b class="mono">${d.stressKva} kVA</b> of a <b class="mono">${d.rating} kVA</b> rating.</p>
+      <p class="mt-1 text-xs text-ink/70">This is a simulated reading; it does not monitor live equipment or notify a utility crew.</p>
+    </article>`;
+  }).join('') : '<div class="rounded-xl border border-sage/40 bg-sage/10 p-4 text-sm font-semibold">All simulated transformers are below the 90% alert threshold.</div>';
+}
+
+function nextStep(m, v) {
+  if (!m.stressOver90.length && !m.anyTransfer) return 4;
+  if (v==='stop') return 3;
+  if (m.stressOver100.length && !m.anyTransfer) return 3;
+  return 4;
+}
+
+function renderStepNav(m, v) {
+  const steps = [
+    ['step1','1','Choose situation'],['step2','2','Check transformers'],['step3','3','Test a fix'],['step4','4','Decide']
+  ];
+  const n = nextStep(m, v);
+  document.getElementById('stepNav').innerHTML = steps.map(([id,num,label]) => {
+    const isNext = Number(num)===n;
+    return `<a href="#${id}" class="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition ${isNext?'bg-action text-white border-action':'bg-cardWhite border-hairline hover:bg-softStone'}">
+      <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isNext?'bg-white text-ink':'bg-softStone'}">${num}</span>
+      <span class="truncate">${label}</span>
+      ${isNext?'<span class="ml-auto text-[10px] font-bold uppercase tracking-wide bg-white/20 rounded px-1.5 py-0.5">Next</span>':''}
+    </a>`;
+  }).join('');
+}
+
+function renderHero(m, v) {
+  const hero = document.getElementById('hero');
+  const prob = m.stressOver100.map(d=>d.id);
+  const near = m.stressOver90.filter(d=>d.stressPct<100).map(d=>d.id);
+  let cls, icon, title, body, cta;
+  if (prob.length) {
+    cls='bg-terracotta/10 border-terracotta/50'; icon='🛑';
+    title = `Action needed: ${prob.join(', ')} ${prob.length>1?'are':'is'} overloaded`;
+    body = `With this situation, ${prob.map(id=>`${id} would run at ${m.dtrs[id].stressPct}% of its rating`).join('; ')}. ` +
+      (v==='stop' ? 'Your current plan does not fix this yet.' : (m.anyTransfer ? 'Your current plan brings every transformer back within limits.' : ''));
+    cta = v==='stop'
+      ? `<button onclick="suggestFix()" class="px-5 py-3 rounded-xl bg-action text-white font-semibold hover:bg-actionHover shadow">✨ Show me a fix</button>`
+      : `<a href="#step4" class="inline-block px-5 py-3 rounded-xl bg-action text-white font-semibold hover:bg-actionHover shadow">Review &amp; decide →</a>`;
+  } else if (near.length) {
+    cls='bg-amberWatch/10 border-amberWatch/50'; icon='⚠️';
+    title = `Keep an eye on ${near.join(', ')}`;
+    body = `${near.map(id=>`${id} is at ${m.dtrs[id].stressPct}%`).join(', ')}. Nothing is overloaded, but it is above the 90% early-warning level.`;
+    cta = `<button onclick="suggestFix()" class="px-5 py-3 rounded-xl bg-action text-white font-semibold hover:bg-actionHover shadow">✨ Balance the load</button>`;
+  } else {
+    cls='bg-sage/10 border-sage/50'; icon='✅';
+    title='All clear: every transformer is comfortably within limits';
+    body='No action is required in this situation. Try a different scenario in Step 1 to stress-test the feeder.';
+    cta = `<a href="#step1" class="inline-block px-5 py-3 rounded-xl bg-action text-white font-semibold hover:bg-actionHover shadow">Try another scenario</a>`;
+  }
+  hero.className = `rounded-2xl border-2 p-5 sm:p-6 ${cls}`;
+  hero.innerHTML = `
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-start gap-4">
+        <div class="text-4xl leading-none" aria-hidden="true">${icon}</div>
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-ink/60 mb-1">Current status</div>
+          <h2 class="text-xl sm:text-2xl font-extrabold leading-tight">${title}</h2>
+          <p class="text-sm sm:text-base text-ink/80 mt-1.5 max-w-3xl">${body}</p>
+        </div>
+      </div>
+      <div class="shrink-0">${cta}</div>
+    </div>`;
+}
+
+function renderScenarios() {
+  document.getElementById('scenarioCards').innerHTML = Object.entries(SCENARIOS).map(([k,s]) => {
+    const on = state.scenario===k;
+    return `<button onclick="setScenario('${k}')" aria-pressed="${on}" class="text-left p-4 rounded-xl border-2 transition ${on?'border-ink bg-stoneBg':'border-hairline bg-cardWhite hover:border-ink/50'}">
+      <div class="flex items-center justify-between"><span class="text-2xl">${s.icon}</span>${on?'<span class="text-[11px] font-bold bg-action text-white rounded px-2 py-0.5">SELECTED</span>':''}</div>
+      <div class="font-bold mt-2">${s.title}</div>
+      <div class="text-sm text-ink/70 mt-0.5">${s.desc}</div>
+    </button>`;
+  }).join('');
+  const pct = Math.round((state.mult-1)*100);
+  document.getElementById('multSlider').value = Math.round(state.mult*100);
+  document.getElementById('multLabel').textContent = `${pct>=0?'+':''}${pct}%`;
+}
+
+function renderTopology(m) {
+  const colors = {
+    ink:uiColor('--app-ink'), good:uiColor('--app-good'), alert:uiColor('--app-alert'),
+    card:uiColor('--app-card'), soft:uiColor('--app-soft')
+  };
+  document.getElementById('svgSubLoad').textContent = `Total ${m.totPost} kVA`;
+  // Tie links
+  const ties = [
+    { id:'12', v:state.transfers.t12, d:'M 340 335 L 470 335', bx:372, by:322, w:66, lbl:(v)=>v>0?`→ 01 · ${v}`:`→ 02 · ${-v}` },
+    { id:'23', v:state.transfers.t23, d:'M 560 335 L 690 335', bx:592, by:322, w:66, lbl:(v)=>v>0?`→ 03 · ${v}`:`→ 02 · ${-v}` },
+    { id:'13', v:state.transfers.t13, d:'M 295 362 Q 515 402 735 362', bx:477, by:372, w:76, lbl:(v)=>v>0?`→ 01 · ${v}`:`→ 03 · ${-v}` }
+  ];
+  document.getElementById('tieLayer').innerHTML = ties.map(t => {
+    const on = t.v!==0;
+    return `<path d="${t.d}" fill="none" stroke="${on?colors.alert:colors.good}" stroke-width="2.5" stroke-dasharray="5 4" class="${on?'tie-flow':''}"/>
+      <rect x="${t.bx}" y="${t.by}" width="${t.w}" height="22" rx="5" fill="${on?colors.soft:colors.card}" stroke="${on?colors.alert:colors.ink}" stroke-width="1.5"/>
+      <text x="${t.bx+t.w/2}" y="${t.by+15}" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" font-weight="700" fill="${on?colors.alert:colors.ink}">${on?t.lbl(t.v):'LINK OFF'}</text>`;
+  }).join('');
+
+  let h='';
+  Object.values(m.dtrs).forEach(d => {
+    const s = st(d.postPct), sel = state.sel===d.id;
+    h += `<g class="cursor-pointer" tabindex="0" role="button" aria-label="${d.id} ${d.postPct}% ${s.label}" onclick="selectDtr('${d.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')selectDtr('${d.id}')">
+      ${d.postPct>=100?`<circle cx="${d.x}" cy="${d.y}" r="38" fill="none" stroke="${colors.alert}" stroke-width="3" class="pulse-alert"/>`:''}
+      ${sel?`<circle cx="${d.x}" cy="${d.y}" r="44" fill="none" stroke="${colors.ink}" stroke-width="1.8" stroke-dasharray="3 3"/>`:''}
+      <circle cx="${d.x}" cy="${d.y}" r="35" fill="${colors.card}" stroke="${s.hex}" stroke-width="${d.postPct>=90?4:2.5}"/>
+      <text x="${d.x}" y="${d.y-2}" text-anchor="middle" font-family="JetBrains Mono" font-weight="700" font-size="16" fill="${s.hex}">${d.postPct}%</text>
+      <text x="${d.x}" y="${d.y+14}" text-anchor="middle" font-size="10.5" font-weight="700" fill="${s.hex}">${s.icon} ${s.label}</text>
+      <text x="${d.x}" y="${d.y+56}" text-anchor="middle" font-weight="700" font-size="13" fill="${colors.ink}">${d.id}</text>
+      <text x="${d.x}" y="${d.y+71}" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="${colors.ink}" opacity=".9">${d.post} of ${d.rating} kVA</text>`;
+    [-44,0,44].forEach((off,i) => {
+      const cx=d.x+off, cy=d.y+112;
+      h += `<line x1="${cx}" y1="${d.y+78}" x2="${cx}" y2="${cy-11}" stroke="${colors.ink}" stroke-width="1.3" opacity=".75"/>
+        <circle cx="${cx}" cy="${cy}" r="12" fill="${colors.soft}" stroke="${colors.alert}" stroke-width="1.4"/>
+        <text x="${cx}" y="${cy+3}" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" font-weight="700" fill="${colors.ink}">${(d.post*d.clusters[i].share).toFixed(0)}</text>`;
+    });
+    h += `</g>`;
+  });
+  document.getElementById('svgDtrLayer').innerHTML = h;
+
+  const s = m.dtrs[state.sel], ss = st(s.postPct);
+  document.getElementById('nodeInspector').innerHTML = `
+    <div class="flex flex-wrap items-center gap-3 mb-3">
+      <span class="px-2.5 py-1 rounded-md text-sm font-bold border ${ss.bg} ${ss.txt} ${ss.bd}">${ss.icon} ${s.id} · ${ss.label}</span>
+      <span class="text-sm text-ink/70">${s.name} · rated ${s.rating} kVA · ${s.node}</span>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+      <div class="rounded-lg bg-stoneBg p-3"><div class="text-xs text-ink/60">Before your plan</div><div class="mono font-bold">${s.stressKva} kVA (${s.stressPct}%)</div></div>
+      <div class="rounded-lg bg-stoneBg p-3"><div class="text-xs text-ink/60">After your plan</div><div class="mono font-bold ${ss.txt}">${s.post} kVA (${s.postPct}%)</div></div>
+      <div class="rounded-lg bg-stoneBg p-3"><div class="text-xs text-ink/60">Low-voltage side</div><div class="mono font-bold">${s.ltKv} kV (−${s.vDev}%)</div></div>
+    </div>
+    <div class="mt-3 text-sm"><b>Neighbourhoods fed:</b> <span class="text-ink/80">${s.clusters.map(c=>`${c.name} (${(s.post*c.share).toFixed(0)} kVA)`).join(' · ')}</span></div>`;
+}
+
+function renderWatchlist(m) {
+  const list = Object.values(m.dtrs).sort((a,b)=>b.stressPct-a.stressPct);
+  document.getElementById('watchlist').innerHTML = list.map(d => {
+    const s = st(d.stressPct);
+    return `<button onclick="selectDtr('${d.id}')" class="w-full text-left p-3.5 rounded-xl border-2 transition ${state.sel===d.id?'border-ink bg-stoneBg/60':'border-hairline hover:border-ink/40'}">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
+          <b>${d.id}</b><span class="text-xs mono text-ink/60">${d.rating} kVA</span>
+          <span class="text-xs font-bold px-2 py-0.5 rounded border ${s.bg} ${s.txt} ${s.bd}">${s.icon} ${s.label}</span>
+        </div>
+        <div class="mono text-lg font-bold ${s.txt}">${d.stressPct}%</div>
+      </div>
+      <div class="relative w-full h-2.5 bg-softStone rounded-full mt-2.5 overflow-hidden">
+        <div class="h-full rounded-full" style="width:${Math.min(100,d.stressPct)}%;background:${s.hex}"></div>
+        <div class="absolute top-0 bottom-0 w-0.5 bg-action" style="left:90%"></div>
+      </div>
+      <div class="mt-2 text-sm text-ink/80"><b>Why:</b> ${d.why}</div>
+      <div class="mt-1 flex items-center justify-between text-xs text-ink/65 mono">
+        <span>Estimated in 15 min: <b class="text-ink">${d.forecastPct}%</b></span>
+        <span class="${d.risk>=.7?'text-terracotta':'text-sage'} font-semibold">${d.risk>=.7?'Higher':'Lower'} demo risk · ${d.risk.toFixed(2)}</span>
+      </div>
+    </button>`;
+  }).join('');
+}
+
+function sliderBlock(key, title, from, to, min, max, val) {
+  return `<div class="p-4 rounded-xl bg-stoneBg/70 border border-hairline">
+    <div class="flex flex-wrap items-center justify-between gap-1 mb-2">
+      <span class="text-sm font-semibold">${title}</span>
+      <span id="transferLabel-${key}" class="text-xs mono font-bold px-2 py-1 rounded bg-cardWhite border border-hairline">${transferLabel(key)}</span>
+    </div>
+    <input type="range" min="${min}" max="${max}" step="5" value="${val}" aria-label="${title}" oninput="setTransfer('${key}', this.value)" />
+    <div class="flex justify-between text-[11px] text-ink/60 mt-1.5"><span>← more to ${from}</span><span>0</span><span>more to ${to} →</span></div>
+  </div>`;
+}
+function renderTransfers() {
+  const t = state.transfers;
+  document.getElementById('transferControls').innerHTML =
+    sliderBlock('t12','Link between DTR-02 and DTR-01','DTR-02','DTR-01',-50,60,t.t12) +
+    sliderBlock('t13','Link between DTR-03 and DTR-01','DTR-03','DTR-01',-40,50,t.t13) +
+    sliderBlock('t23','Link between DTR-02 and DTR-03','DTR-02','DTR-03',-40,40,t.t23);
+}
+function transferLabel(key) {
+  const val = state.transfers[key];
+  if (val === 0) return 'Not moving anything';
+  const destinations = { t12: val > 0 ? 'DTR-01' : 'DTR-02', t13: val > 0 ? 'DTR-01' : 'DTR-03', t23: val > 0 ? 'DTR-03' : 'DTR-02' };
+  return `Moving ${Math.abs(val)} kVA → ${destinations[key]}`;
+}
+
+function renderChecks(m, v) {
+  const over = m.postOver100.map(d=>`${d.id} ${d.postPct}%`).join(', ');
+  const row = (ok, warn, label, detail) => `<li class="flex items-start gap-2"><span class="mt-0.5 w-5 h-5 shrink-0 rounded-full flex items-center justify-center text-xs font-bold text-white ${ok?'bg-sage':(warn?'bg-amberWatch':'bg-terracotta')}">${ok?'✓':(warn?'!':'✕')}</span><div><div class="font-semibold">${label}</div><div class="text-ink/75">${detail}</div></div></li>`;
+  const box = document.getElementById('checks');
+  box.className = `rounded-xl border-2 p-4 ${v==='stop'?'bg-terracotta/10 border-terracotta/40':(v==='caution'?'bg-amberWatch/10 border-amberWatch/40':'bg-sage/10 border-sage/40')}`;
+  box.innerHTML = `
+    <div class="flex items-center justify-between mb-3"><h3 class="text-sm font-bold uppercase tracking-wide">Safety checks for this plan</h3>
+      <span class="text-sm font-bold ${v==='stop'?'text-terracotta':(v==='caution'?'text-amberWatch':'text-sage')}">${v==='stop'?'Not safe':(v==='caution'?'Acceptable, watch closely':'All checks pass')}</span></div>
+    <ul class="space-y-2.5 text-sm">
+      ${row(!m.postOver100.length,false,'No transformer above its rating', m.postOver100.length ? `Overloaded: ${over}` : 'Every transformer is at or below 100%.')}
+      ${row(!m.postOver90.length, !!m.postOver90.length && !m.postOver100.length, 'Early-warning level (90%)', m.postOver90.length ? `${m.postOver90.length} of 3 transformers are at 90% or more.` : 'All three are below 90%.')}
+      ${row(m.vOk,false,'Voltage drop within ±6%', `Worst low-voltage drop is −${m.maxV}%.`)}
+    </ul>
+    <div class="mt-3 pt-3 border-t border-ink/10 text-sm text-ink/80">Total feeder load: <b class="mono">${m.totPost} / ${RATED_TOTAL} kVA (${m.feederPct}%)</b></div>`;
+}
+
+function renderVerdict(m, v) {
+  const box = document.getElementById('verdict');
+  const btn = document.getElementById('approveBtn');
+  const hint = document.getElementById('approveHint');
+  const cfg = {
+    go:{ c:'bg-sage/10 border-sage/40', t:'✅ Safe to approve', tc:'text-sage' },
+    caution:{ c:'bg-amberWatch/10 border-amberWatch/40', t:'⚠️ Acceptable, but keep monitoring', tc:'text-amberWatch' },
+    stop:{ c:'bg-terracotta/10 border-terracotta/40', t:'🛑 Do not approve this plan', tc:'text-terracotta' }
+  }[v];
+  box.className = `rounded-xl border-2 p-4 ${cfg.c}`;
+  const d = m.dtrs;
+  box.innerHTML = `<div class="font-bold ${cfg.tc} text-base">${cfg.t}</div>
+    <div class="text-sm mt-2"><span class="text-ink/60">Plan:</span> <b>${planText()}</b></div>
+    <div class="text-sm mt-1"><span class="text-ink/60">Result:</span> <span class="mono font-semibold">DTR-01 ${d['DTR-01'].postPct}% · DTR-02 ${d['DTR-02'].postPct}% · DTR-03 ${d['DTR-03'].postPct}%</span></div>
+    ${v==='stop' ? '<div class="text-sm mt-2">Go back to <a class="underline font-semibold" href="#step3">Step 3</a> and adjust, or press <b>Suggest the best fix</b>.</div>' : ''}`;
+  btn.disabled = v==='stop';
+  hint.textContent = v==='stop' ? 'Approve is switched off because this plan would overload a transformer or break the voltage limit. You can still reject.' : 'This only adds a demo record to the page. It does not notify an operator or control equipment.';
+}
+
+function renderAudit() {
+  document.getElementById('auditCount').textContent = `${state.audit.length} entries`;
+  document.getElementById('auditBody').innerHTML = state.audit.map(e => `
+    <tr class="hover:bg-stoneBg/50">
+      <td class="py-2.5 px-3 mono"><div class="font-semibold">${e.time}</div><div class="text-xs text-ink/60">${e.op}</div></td>
+      <td class="py-2.5 px-3"><div class="font-medium">${e.action}</div><div class="text-xs text-ink/60">${e.scen}</div></td>
+      <td class="py-2.5 px-3 mono font-semibold">${e.post}</td>
+      <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded text-xs font-bold ${e.status==='APPROVED'?'bg-sage/15 text-sage':'bg-terracotta/15 text-terracotta'}">${e.status==='APPROVED'?'✓ Approved':'✕ Rejected'}</span></td>
+    </tr>`).join('');
+}
+
+// ===================== CHARTS =====================
+function chartPalette() {
+  return {
+    ink:uiColor('--app-ink'), grid:uiColor('--app-grid'), neutral:uiColor('--app-neutral'),
+    good:uiColor('--app-good'), alert:uiColor('--app-alert'), watch:uiColor('--app-watch'),
+    scenario:uiColor('--app-scenario'), plan:uiColor('--app-plan')
+  };
+}
+function rgba(hex, alpha) {
+  const value = hex.replace('#','');
+  const number = parseInt(value,16);
+  return `rgba(${(number>>16)&255},${(number>>8)&255},${number&255},${alpha})`;
+}
+function initCharts() {
+  if (barChart || fcChart) return;
+  if (typeof Chart === 'undefined') {
+    document.getElementById('barChart').classList.add('hidden');
+    document.getElementById('forecastChart').classList.add('hidden');
+    document.getElementById('barChartFallback').classList.remove('hidden');
+    document.getElementById('forecastFallback').classList.remove('hidden');
+    return;
+  }
+  const lines = {
+    id:'lines',
+    afterDatasetsDraw(chart){
+      const { ctx, chartArea:{left,right}, scales:{y} } = chart;
+      ctx.save(); ctx.setLineDash([6,5]); ctx.lineWidth=2;
+      [[90,uiColor('--app-watch'),'90% near limit'],[100,uiColor('--app-alert'),'100% overloaded']].forEach(([val,col,txt])=>{
+        const yp=y.getPixelForValue(val);
+        ctx.strokeStyle=col; ctx.beginPath(); ctx.moveTo(left,yp); ctx.lineTo(right,yp); ctx.stroke();
+        ctx.fillStyle=col; ctx.font='600 10px "JetBrains Mono"'; ctx.fillText(txt, right-98, yp+(val===90?13:-5));
+      });
+      ctx.restore();
+    }
+  };
+  barChart = new Chart(document.getElementById('barChart'), {
+    type:'bar',
+    data:{ labels:['DTR-01 (250 kVA)','DTR-02 (200 kVA)','DTR-03 (160 kVA)'],
+      datasets:[
+        { label:'Normal day', data:[0,0,0], backgroundColor:chartPalette().neutral, borderRadius:5, borderColor:chartPalette().neutral, borderWidth:1 },
+        { label:'This situation', data:[0,0,0], backgroundColor:chartPalette().scenario, borderRadius:5, borderColor:chartPalette().scenario, borderWidth:1 },
+        { label:'After your plan', data:[0,0,0], backgroundColor:chartPalette().plan, borderRadius:5, borderColor:chartPalette().plan, borderWidth:1 }
+      ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'top', align:'start', labels:{ boxWidth:12, font:{family:'Inter',size:12,weight:'600'}, color:chartPalette().ink } },
+        tooltip:{ callbacks:{ label:c=>`${c.dataset.label}: ${c.parsed.y}% full` } } },
+      scales:{ y:{ beginAtZero:true, max:125, ticks:{ stepSize:25, callback:v=>v+'%', color:chartPalette().ink, font:{family:'JetBrains Mono',size:11} }, grid:{color:chartPalette().grid} },
+               x:{ ticks:{ color:chartPalette().ink, font:{family:'Inter',size:12,weight:'700'} }, grid:{display:false} } } },
+    plugins:[lines]
+  });
+  fcChart = new Chart(document.getElementById('forecastChart'), {
+    type:'line',
+    data:{ labels:['−45m','−30m','−15m','Now','+15m'],
+      datasets:[{ data:[0,0,0,0,0], borderColor:chartPalette().plan, backgroundColor:rgba(chartPalette().good,.16), borderWidth:2, fill:true, tension:.35,
+        pointBackgroundColor:[chartPalette().plan,chartPalette().plan,chartPalette().plan,chartPalette().good,chartPalette().scenario], pointRadius:4 }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:c=>`${c.parsed.y} kVA` } } },
+      scales:{ y:{ min:350, max:700, ticks:{ stepSize:150, font:{family:'JetBrains Mono',size:10}, color:chartPalette().ink }, grid:{color:chartPalette().grid} },
+               x:{ ticks:{ font:{family:'JetBrains Mono',size:10}, color:chartPalette().ink }, grid:{display:false} } } }
+  });
+}
+function applyChartTheme() {
+  if (!barChart || !fcChart) return;
+  const colors = chartPalette();
+  barChart.data.datasets[0].backgroundColor = barChart.data.datasets[0].borderColor = colors.neutral;
+  barChart.data.datasets[1].backgroundColor = barChart.data.datasets[1].borderColor = colors.scenario;
+  barChart.data.datasets[2].backgroundColor = barChart.data.datasets[2].borderColor = colors.plan;
+  barChart.options.plugins.legend.labels.color = colors.ink;
+  barChart.options.scales.y.ticks.color = barChart.options.scales.x.ticks.color = colors.ink;
+  barChart.options.scales.y.grid.color = colors.grid;
+  fcChart.data.datasets[0].borderColor = colors.plan;
+  fcChart.data.datasets[0].backgroundColor = rgba(colors.good,.16);
+  fcChart.data.datasets[0].pointBackgroundColor = [colors.plan,colors.plan,colors.plan,colors.good,colors.scenario];
+  fcChart.options.scales.y.ticks.color = fcChart.options.scales.x.ticks.color = colors.ink;
+  fcChart.options.scales.y.grid.color = colors.grid;
+  barChart.update('none');
+  fcChart.update('none');
+}
+function updateCharts(m) {
+  if (!barChart || !fcChart) return;
+  const d = m.dtrs;
+  barChart.data.datasets[0].data = ['DTR-01','DTR-02','DTR-03'].map(k=>d[k].basePct);
+  barChart.data.datasets[1].data = ['DTR-01','DTR-02','DTR-03'].map(k=>d[k].stressPct);
+  barChart.data.datasets[2].data = ['DTR-01','DTR-02','DTR-03'].map(k=>d[k].postPct);
+  barChart.update();
+  const n = m.totStress;
+  fcChart.data.datasets[0].data = [.85,.90,.96,1,1.03].map(f=>Math.round(n*f));
+  fcChart.update();
+}
+
+// ===================== ACTIONS =====================
+function setScenario(k) {
+  state.scenario = k;
+  if (SCENARIOS[k].mult) state.mult = SCENARIOS[k].mult;
+  state.transfers = { t12:0, t13:0, t23:0 };
+  renderAll();
+}
+function onCustomMult(v) { state.scenario='custom'; state.mult = Number(v)/100; state.transfers={t12:0,t13:0,t23:0}; renderAll(); }
+function selectDtr(id) { state.sel = id; renderAll(); }
+function setTransfer(k, v) {
+  state.transfers[k] = Number(v);
+  renderAll(true);
+  document.getElementById(`transferLabel-${k}`).textContent = transferLabel(k);
+}
+function resetTransfers() { state.transfers={t12:0,t13:0,t23:0}; renderAll(); showToast('Plan cleared','No load is being moved.'); }
+function applyDeck() { state.scenario='surge25'; state.mult=1.25; state.transfers={t12:35,t13:10,t23:0}; renderAll(); showToast('Pitch-deck example loaded','+25% surge with 35 kVA and 10 kVA moved onto DTR-01. Notice DTR-01 now becomes the problem.'); }
+function advance15() {
+  state.minutes += 15;
+  state.mult = Math.min(1.35, Math.max(.8, +(state.mult + (Math.random()-.45)*.025).toFixed(3)));
+  if (state.scenario!=='custom' && state.scenario!=='baseline' ) { /* keep label but demand drifted */ }
+  renderAll(); showToast('New meter readings','15 minutes passed. Load changed slightly; re-check the status above.');
+}
+function logDecision(decision) {
+  const m = compute();
+  if (decision==='APPROVED' && verdictOf(m)==='stop') return;
+  const h = String(Math.floor(state.minutes/60)%24).padStart(2,'0'), mi = String(state.minutes%60).padStart(2,'0');
+  const d = m.dtrs;
+  state.audit.unshift({ time:`${h}:${mi}`, op:'Demo operator', scen:`${SCENARIOS[state.scenario].title} (${Math.round((state.mult-1)*100)>=0?'+':''}${Math.round((state.mult-1)*100)}%)`,
+    action:planText(), post:`${d['DTR-01'].postPct}% / ${d['DTR-02'].postPct}% / ${d['DTR-03'].postPct}%`, status:decision });
+  if (decision==='REJECTED') { state.transfers={t12:0,t13:0,t23:0}; showToast('Plan rejected','Plan cleared and logged. Pick a new approach in Step 3.'); }
+  else showToast('Demo approval recorded','Added to this page only. No operator or field crew is notified.');
+  renderAll();
+  document.getElementById('auditBody').closest('div').scrollTop = 0;
+}
+
+// ===================== UI HELPERS =====================
+let toastT=null;
+function showToast(t,m){ document.getElementById('toastTitle').textContent=t; document.getElementById('toastMsg').textContent=m; document.getElementById('toast').classList.remove('hidden'); clearTimeout(toastT); toastT=setTimeout(hideToast,5200); }
+function hideToast(){ document.getElementById('toast').classList.add('hidden'); }
+function openHelp(){ document.getElementById('helpModal').classList.remove('hidden'); }
+function closeHelp(){ document.getElementById('helpModal').classList.add('hidden'); }
+document.addEventListener('keydown', e => { if (e.key==='Escape'){ closeHelp(); toggleDev(false); } });
+
+function syncThemeButtons() {
+  const explicitTheme = document.documentElement.dataset.theme;
+  const isDark = explicitTheme ? explicitTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.querySelectorAll('#authThemeToggle, #headerThemeToggle').forEach(button => {
+    button.textContent = isDark ? '☀ Light mode' : '☾ Dark mode';
+    button.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+    button.setAttribute('aria-pressed', String(isDark));
+    button.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+  });
+}
+function toggleTheme() {
+  const currentTheme = document.documentElement.dataset.theme ||
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.dataset.theme = currentTheme === 'dark' ? 'light' : 'dark';
+  syncThemeButtons();
+  applyChartTheme();
+  if (signedInUser?.role === 'admin') renderAll();
+}
+
+// ===================== ROLE-AWARE SERVICE PORTAL =====================
+let signedInUser = null;
+let confirmedLocation = false;
+let portalPoll = null;
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[ch]));
+}
+
+async function api(path, options = {}) {
+  const headers = Object.assign({'Content-Type':'application/json'}, options.headers || {});
+  let response;
+  try { response = await fetch(path, Object.assign({ credentials:'same-origin' }, options, { headers })); }
+  catch { throw new Error('PHP backend is not reachable. Run `php -S 127.0.0.1:8000 backend.php` in the project folder.'); }
+  let payload;
+  try { payload = await response.json(); }
+  catch { throw new Error('PHP backend did not return JSON. Run `php -S 127.0.0.1:8000 backend.php` in the project folder.'); }
+  if (!response.ok) throw new Error(payload.error || `Request failed (${response.status}).`);
+  return payload;
+}
+
+function setAuthMessage(message, tone = 'error') {
+  const node = document.getElementById('authMessage');
+  node.textContent = message;
+  node.className = `mt-4 min-h-5 text-sm ${tone==='info'?'text-amberWatch':'text-terracotta'}`;
+}
+
+async function submitLogin(event) {
+  event.preventDefault();
+  setAuthMessage('');
+  const button = document.getElementById('loginButton');
+  button.disabled = true;
+  try {
+    const result = await api('/api/auth/login', {
+      method:'POST',
+      body:JSON.stringify({
+        username:document.getElementById('loginUsername').value.trim(),
+        password:document.getElementById('loginPassword').value
+      })
+    });
+    if (result.requires_otp) {
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('otpForm').classList.remove('hidden');
+      document.getElementById('otpCode').focus();
+      const hint = document.getElementById('demoOtpHint');
+      hint.textContent = `Demo OTP: ${result.demo_otp} · expires in 5 minutes`;
+      hint.classList.remove('hidden');
+      setAuthMessage(result.message, 'info');
+      return;
+    }
+    openRolePanel(result.user);
+  } catch (error) {
+    setAuthMessage(error.message);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function submitOtp(event) {
+  event.preventDefault();
+  setAuthMessage('');
+  try {
+    const result = await api('/api/auth/verify-otp', {
+      method:'POST',
+      body:JSON.stringify({ code:document.getElementById('otpCode').value.trim() })
+    });
+    openRolePanel(result.user);
+  } catch (error) {
+    setAuthMessage(error.message);
+  }
+}
+
+function restartSignIn() {
+  document.getElementById('otpForm').reset();
+  document.getElementById('otpForm').classList.add('hidden');
+  document.getElementById('loginForm').classList.remove('hidden');
+  document.getElementById('demoOtpHint').classList.add('hidden');
+  setAuthMessage('');
+}
+
+function openRolePanel(user) {
+  if (!user || !['admin','customer','worker'].includes(user.role)) {
+    setAuthMessage('The server returned an unknown account role.');
+    return;
+  }
+  signedInUser = user;
+  if (portalPoll) clearInterval(portalPoll);
+  document.body.classList.remove('guest','admin','customer','worker');
+  document.body.classList.add(user.role);
+  document.getElementById('adminPanel').classList.toggle('hidden', user.role !== 'admin');
+  document.getElementById('customerPanel').classList.toggle('hidden', user.role !== 'customer');
+  document.getElementById('workerPanel').classList.toggle('hidden', user.role !== 'worker');
+  document.getElementById('appTitle').textContent = user.role === 'admin'
+    ? 'BESCOM Operations Desk' : user.role === 'worker' ? 'Field Worker Portal' : 'Customer Service Portal';
+  document.getElementById('appSubtitle').textContent = `${user.full_name} · ${user.role} · demo account`;
+  document.getElementById('signedInBadge').textContent = `${user.full_name} · ${user.role}`;
+  document.getElementById('signedInBadge').classList.remove('hidden');
+  document.getElementById('logoutButton').classList.remove('hidden');
+  if (user.role === 'admin') {
+    showAdminView('overview');
+    initCharts();
+    renderAll();
+    refreshAdmin();
+  }
+  if (user.role === 'customer') {
+    document.getElementById('chatMessages').innerHTML = '';
+    addChatMessage('Hi. Tell me the area where the problem is. I will check it against the service demo and the location on your account.');
+    refreshCustomer();
+  }
+  if (user.role === 'worker') refreshWorkerTasks();
+  portalPoll = setInterval(() => {
+    if (signedInUser?.role === 'admin' && !document.getElementById('adminPanel').contains(document.activeElement)) refreshAdmin();
+    if (signedInUser?.role === 'customer') refreshCustomer();
+    if (signedInUser?.role === 'worker' && !document.getElementById('workerTasks').contains(document.activeElement)) refreshWorkerTasks();
+  }, 30000);
+}
+
+async function initializePortal() {
+  if (location.protocol === 'file:') {
+    setAuthMessage('Start the PHP server in this folder, then open http://127.0.0.1:8000.', 'info');
+    return;
+  }
+  try {
+    const result = await api('/api/auth/me');
+    openRolePanel(result.user);
+  } catch (error) {
+    if (!error.message.includes('sign in')) setAuthMessage(error.message, 'info');
+  }
+}
+
+async function logout() {
+  if (portalPoll) clearInterval(portalPoll);
+  portalPoll = null;
+  try { await api('/api/auth/logout', { method:'POST', body:'{}' }); }
+  catch (error) { showToast('Sign-out issue', error.message); }
+  signedInUser = null;
+  confirmedLocation = false;
+  document.body.classList.remove('admin','customer','worker');
+  document.body.classList.add('guest');
+  document.getElementById('signedInBadge').classList.add('hidden');
+  document.getElementById('logoutButton').classList.add('hidden');
+  document.getElementById('loginForm').reset();
+  document.getElementById('loginForm').classList.remove('hidden');
+  document.getElementById('otpForm').reset();
+  document.getElementById('otpForm').classList.add('hidden');
+  document.getElementById('demoOtpHint').classList.add('hidden');
+  setAuthMessage('');
+}
+
+function renderNotifications(targetId, notifications) {
+  const target = document.getElementById(targetId);
+  target.innerHTML = notifications.length ? notifications.map(item => `
+    <article class="rounded-lg border border-hairline bg-stoneBg/50 p-3">
+      <div class="text-sm">${escapeHtml(item.message)}</div>
+      <div class="mt-1 text-[11px] text-ink/70">${escapeHtml(item.kind)} · ${escapeHtml(item.channel)} · ${escapeHtml(item.created_at)}</div>
+    </article>`).join('') : '<p class="text-sm text-ink/70">No notifications yet.</p>';
+}
+
+async function refreshAdmin() {
+  try {
+    const [health, data] = await Promise.all([api('/health'), api('/api/admin/overview')]);
+    const status = document.getElementById('backendHealth');
+    status.textContent = health.status === 'ok' ? 'System online · database ready' : 'System status unknown';
+    status.className = `rounded-full border px-3 py-1 text-xs font-semibold ${health.status==='ok'?'bg-sage/10 border-sage/30 text-sage':'bg-terracotta/10 border-terracotta/30 text-terracotta'}`;
+    renderAdmin(data);
+  } catch (error) {
+    const status = document.getElementById('backendHealth');
+    status.textContent = 'System unavailable';
+    status.className = 'rounded-full border border-terracotta/30 bg-terracotta/10 px-3 py-1 text-xs font-semibold text-terracotta';
+    showToast('Could not load operations desk', error.message);
+  }
+}
+
+let adminCaseFilter = 'all';
+let latestAdminData = null;
+
+function setAdminCaseFilter(category) {
+  adminCaseFilter = category;
+  if (latestAdminData) renderAdminCases(latestAdminData);
+}
+
+function renderAdminCases(data) {
+  const complaints = data.complaints || [];
+  const filtered = adminCaseFilter === 'all'
+    ? complaints
+    : complaints.filter(item => item.category === adminCaseFilter);
+  document.querySelectorAll('[data-case-filter]').forEach(button => {
+    button.setAttribute('aria-pressed', button.dataset.caseFilter === adminCaseFilter ? 'true' : 'false');
+  });
+  const casesNode = document.getElementById('adminCases');
+  casesNode.innerHTML = filtered.length ? filtered.map(item => {
+    const id = Number(item.complaint_id);
+    const workers = data.workers || [];
+    const workerOptions = workers.map(worker =>
+      `<option value="${escapeHtml(worker.username)}" ${item.assigned_worker===worker.username?'selected':''}>${escapeHtml(worker.full_name)}</option>`
+    ).join('');
+    return `<article class="rounded-xl border border-hairline bg-cardWhite p-4">
+      <div class="flex flex-wrap items-start justify-between gap-2">
+        <div><p class="text-xs font-bold uppercase tracking-wide text-ink/70">Customer report</p><h4 class="text-lg font-extrabold mt-1">Request #${id}</h4></div>
+        <span class="h-fit rounded-full border border-hairline bg-stoneBg px-3 py-1 text-xs font-bold">${escapeHtml(item.status)}</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
+        <div class="rounded-lg bg-stoneBg p-3"><span class="block text-xs font-bold uppercase tracking-wide text-ink/70">Problem type</span><b class="block mt-1 text-sm">${escapeHtml(item.category)}</b></div>
+        <div class="rounded-lg bg-stoneBg p-3"><span class="block text-xs font-bold uppercase tracking-wide text-ink/70">Customer</span><b class="block mt-1 text-sm">${escapeHtml(item.customer_name)}</b><span class="text-xs text-ink/70">${escapeHtml(item.customer_username)}</span></div>
+        <div class="rounded-lg bg-stoneBg p-3"><span class="block text-xs font-bold uppercase tracking-wide text-ink/70">Reported location</span><b class="block mt-1 text-sm">${escapeHtml(item.location)}</b></div>
+      </div>
+      <div class="mt-3 rounded-lg border border-hairline p-3"><p class="text-xs font-bold uppercase tracking-wide text-ink/70">What the customer reported</p><p class="mt-1 text-sm whitespace-pre-wrap">${escapeHtml(item.description)}</p></div>
+      ${item.worker_note?`<div class="mt-2 rounded-lg border border-amberWatch/30 bg-amberWatch/10 p-3 text-sm"><b>Worker report:</b> ${escapeHtml(item.worker_note)}</div>`:''}
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <label class="text-xs font-semibold">Assign worker
+          <select id="assign-${id}" class="ml-1 rounded border border-hairline px-2 py-1">${workerOptions}</select>
+        </label>
+        <button onclick="assignCase(${id})" class="rounded bg-action px-3 py-1.5 text-xs text-white">Assign</button>
+        <button onclick="updateCaseStatus(${id},'IN_PROGRESS')" class="rounded border border-hairline px-3 py-1.5 text-xs">In progress</button>
+        <button onclick="updateCaseStatus(${id},'RESOLVED')" class="rounded border border-hairline px-3 py-1.5 text-xs">Resolve</button>
+        <button onclick="flagPenalty(${id})" ${Number(item.penalty_review)?'disabled':''} class="rounded border border-amberWatch/40 px-3 py-1.5 text-xs text-amberWatch disabled:opacity-50">${Number(item.penalty_review)?'Penalty review flagged':'Flag for penalty review'}</button>
+      </div>
+    </article>`;
+  }).join('') : complaints.length
+    ? '<p class="rounded-lg border border-hairline bg-stoneBg p-4 text-sm">No reports match this problem type.</p>'
+    : '<p class="rounded-lg border border-hairline bg-stoneBg p-4 text-sm">No customer reports in the queue.</p>';
+}
+
+function renderAdmin(data) {
+  latestAdminData = data;
+  document.getElementById('adminOpenCount').textContent = data.metrics.open;
+  document.getElementById('adminUnassignedCount').textContent = data.metrics.unassigned;
+  document.getElementById('adminWorkerUpdateCount').textContent = data.metrics.worker_updates;
+  document.getElementById('adminPenaltyCount').textContent = data.metrics.penalty_reviews;
+  document.getElementById('adminIssuesBadge').textContent = String(data.metrics.open);
+  const workers = data.workers || [];
+  renderAdminCases(data);
+
+  const customersNode = document.getElementById('adminCustomers');
+  const customers = data.customers || [];
+  customersNode.innerHTML = customers.length ? customers.map(customer => `
+    <article class="rounded-xl border border-hairline p-4">
+      <div class="flex justify-between gap-2"><div><b>${escapeHtml(customer.full_name)}</b><div class="text-xs text-ink/60">${escapeHtml(customer.username)} · ${escapeHtml(customer.service_area)}</div></div><span class="text-xs">${escapeHtml(customer.account_status)}</span></div>
+      <div class="text-xs text-ink/65 mt-2">${escapeHtml(customer.email)} · ${escapeHtml(customer.phone)}</div>
+      <div class="flex flex-wrap gap-2 mt-3">
+        <button onclick="notifyCustomer('${escapeHtml(customer.username)}','sms')" class="rounded border border-hairline px-2.5 py-1.5 text-xs">Notice by SMS</button>
+        <button onclick="notifyCustomer('${escapeHtml(customer.username)}','email')" class="rounded border border-hairline px-2.5 py-1.5 text-xs">Notice by email</button>
+        <button onclick="notifyCustomer('${escapeHtml(customer.username)}','call')" class="rounded border border-hairline px-2.5 py-1.5 text-xs">Log a call</button>
+        <button onclick="requestCustomerRemoval('${escapeHtml(customer.username)}')" class="rounded bg-terracotta/10 px-2.5 py-1.5 text-xs text-terracotta">Request removal review</button>
+      </div>
+    </article>`).join('') : '<p class="text-sm text-ink/70">No customer accounts.</p>';
+  const workerAccounts = data.worker_accounts || [];
+  document.getElementById('adminWorkersBadge').textContent = String(workerAccounts.length);
+  renderWorkerAccounts(workerAccounts);
+  renderNotifications('adminNotifications', data.notifications || []);
+}
+
+function renderWorkerAccounts(workers) {
+  const target = document.getElementById('adminWorkerAccounts');
+  target.innerHTML = workers.length ? workers.map(worker => {
+    const active = worker.account_status === 'active';
+    return `<article class="rounded-xl border border-hairline p-4 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <b>${escapeHtml(worker.full_name)}</b>
+        <div class="text-sm text-ink/70">ID: <code>${escapeHtml(worker.username)}</code></div>
+        <div class="text-xs font-semibold mt-1">${active ? 'Active · can sign in' : 'Inactive · sign-in disabled'}</div>
+      </div>
+      <button type="button" onclick="setWorkerAccess('${escapeHtml(worker.username)}',${!active})"
+        class="rounded-lg border border-hairline px-3 py-2 text-sm font-semibold hover:bg-softStone">${active ? 'Deactivate access' : 'Reactivate access'}</button>
+    </article>`;
+  }).join('') : '<p class="text-sm text-ink/70">No worker accounts yet.</p>';
+}
+
+async function createWorker(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector('button[type="submit"]');
+  const message = document.getElementById('workerFormMessage');
+  button.disabled = true;
+  message.textContent = '';
+  try {
+    await api('/api/admin/workers', {
+      method:'POST',
+      body:JSON.stringify({
+        full_name:document.getElementById('workerFullName').value.trim(),
+        username:document.getElementById('workerUsername').value.trim(),
+        password:document.getElementById('workerPassword').value
+      })
+    });
+    form.reset();
+    message.className = 'text-sm min-h-5 text-sage';
+    message.textContent = 'Worker account created. Give the worker their ID and password directly; the password will not be shown again.';
+    await refreshAdmin();
+  } catch (error) {
+    message.className = 'text-sm min-h-5 text-terracotta';
+    message.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function setWorkerAccess(username, active) {
+  if (!active && !window.confirm('This disables the worker’s sign-in but keeps their account and history. Reassign or resolve their open requests first. Continue?')) return;
+  try {
+    await api('/api/admin/workers/status', {
+      method:'POST',
+      body:JSON.stringify({ username, active })
+    });
+    showToast(active ? 'Worker access restored' : 'Worker access deactivated',
+      active ? 'The worker can sign in again.' : 'Login is disabled; the account and completed work history remain.');
+    await refreshAdmin();
+  } catch (error) {
+    showToast('Could not update worker access', error.message);
+  }
+}
+
+async function adminAction(payload, successMessage) {
+  try {
+    await api('/api/admin/complaints/action', { method:'POST', body:JSON.stringify(payload) });
+    showToast('Updated', successMessage);
+    await refreshAdmin();
+  } catch (error) { showToast('Could not update request', error.message); }
+}
+function assignCase(id) {
+  adminAction({ complaint_id:id, action:'assign', worker_username:document.getElementById(`assign-${id}`).value }, 'Worker assignment was recorded.');
+}
+function updateCaseStatus(id, status) {
+  adminAction({ complaint_id:id, action:'status', status }, `Request status changed to ${status}.`);
+}
+function flagPenalty(id) {
+  adminAction({ complaint_id:id, action:'penalty_review' }, 'Flag sent for human review; no charge was made.');
+}
+async function notifyCustomer(username, channel) {
+  try {
+    const result = await api('/api/admin/customers/notice', { method:'POST', body:JSON.stringify({ customer_username:username, channel }) });
+    showToast('Demo notice recorded', result.message);
+    await refreshAdmin();
+  } catch (error) { showToast('Could not record notice', error.message); }
+}
+async function requestCustomerRemoval(username) {
+  try {
+    await api('/api/admin/customers/request-removal', { method:'POST', body:JSON.stringify({ customer_username:username }) });
+    showToast('Removal review requested', 'The account remains active until a human review; no service was disconnected.');
+    await refreshAdmin();
+  } catch (error) { showToast('Notice required first', error.message); }
+}
+
+async function refreshCustomer() {
+  try {
+    const data = await api('/api/customer/overview');
+    renderCustomer(data);
+  } catch (error) { showToast('Could not load customer account', error.message); }
+}
+function renderCustomer(data) {
+  document.getElementById('customerName').textContent = data.user.full_name;
+  document.getElementById('customerId').textContent = data.user.username;
+  document.getElementById('customerArea').textContent = data.user.service_area;
+  const usage = data.usage || [];
+  const latest = usage[usage.length-1];
+  const previous = usage[usage.length-2];
+  const average = usage.length ? Math.round(usage.reduce((sum, item)=>sum+Number(item.kwh),0)/usage.length) : 0;
+  document.getElementById('customerUsage').innerHTML = `
+    <div class="rounded-xl bg-stoneBg p-4"><div class="text-xs text-ink/60">This month · ${escapeHtml(latest?.month || '—')}</div><b class="text-2xl">${latest?Number(latest.kwh):0} kWh</b></div>
+    <div class="rounded-xl bg-stoneBg p-4"><div class="text-xs text-ink/60">Previous month</div><b class="text-2xl">${previous?Number(previous.kwh):0} kWh</b></div>
+    <div class="rounded-xl bg-stoneBg p-4"><div class="text-xs text-ink/60">6-month monthly average</div><b class="text-2xl">${average} kWh</b></div>
+    <div class="sm:col-span-3 rounded-xl border border-hairline p-4">
+      <div class="flex items-end gap-2 h-24">${usage.map(item=>`<div class="flex-1 h-full flex flex-col justify-end items-center gap-1"><div class="w-full max-w-12 rounded-t bg-sage" style="height:${Math.max(4,Number(item.kwh)/3.2)}%"></div><span class="text-[10px] text-ink/60">${escapeHtml(String(item.month).slice(5))}</span></div>`).join('')}</div>
+      <p class="text-[11px] text-ink/70 mt-2">Sample monthly energy use in kWh. Readings are not fetched from a real meter.</p>
+    </div>`;
+  document.getElementById('customerComplaints').innerHTML = data.complaints.length ? data.complaints.map(item=>`
+    <article class="rounded-lg border border-hairline p-3">
+      <div class="flex justify-between gap-2"><b class="text-sm">#${Number(item.complaint_id)} · ${escapeHtml(item.category)}</b><span class="text-[11px] font-bold">${escapeHtml(item.status)}</span></div>
+      <p class="text-xs text-ink/70 mt-1">${escapeHtml(item.description)}</p>
+      <p class="text-[11px] text-ink/70 mt-1">${escapeHtml(item.location)} · ${escapeHtml(item.worker_name || 'Waiting for assignment')}</p>
+      ${item.worker_note?`<p class="mt-2 rounded bg-stoneBg p-2 text-xs"><b>Latest worker update:</b> ${escapeHtml(item.worker_note)}</p>`:''}
+    </article>`).join('') : '<p class="text-sm text-ink/70">No requests yet.</p>';
+  renderNotifications('customerNotifications', data.notifications || []);
+}
+
+function addChatMessage(message, from = 'bot') {
+  const bubble = document.createElement('div');
+  bubble.className = `chat-bubble rounded-xl p-3 text-sm ${from==='user'?'ml-auto bg-action text-white':'bg-stoneBg text-ink'}`;
+  bubble.textContent = message;
+  document.getElementById('chatMessages').appendChild(bubble);
+  bubble.scrollIntoView({ block:'nearest' });
+}
+async function confirmCustomerLocation(event) {
+  event.preventDefault();
+  const locationValue = document.getElementById('locationInput').value.trim();
+  if (!locationValue) return;
+  addChatMessage(locationValue, 'user');
+  document.getElementById('locationInput').value = '';
+  document.getElementById('locationStatus').textContent = 'Checking the registered service area…';
+  try {
+    const result = await api('/api/location/confirm', { method:'POST', body:JSON.stringify({ location:locationValue }) });
+    confirmedLocation = result.confirmed;
+    document.getElementById('complaintFields').disabled = !confirmedLocation;
+    document.getElementById('locationStatus').textContent = confirmedLocation
+      ? `Confirmed area: ${result.registered_area}. You can now submit a problem.`
+      : 'Location not confirmed. No complaint was opened.';
+    addChatMessage(result.message);
+  } catch (error) {
+    confirmedLocation = false;
+    document.getElementById('complaintFields').disabled = true;
+    document.getElementById('locationStatus').textContent = error.message;
+    addChatMessage(error.message);
+  }
+}
+async function submitCustomerComplaint(event) {
+  event.preventDefault();
+  if (!confirmedLocation) return;
+  const description = document.getElementById('complaintDescription').value.trim();
+  const category = document.querySelector('input[name="complaintCategory"]:checked')?.value;
+  if (!category) {
+    addChatMessage('Choose the problem type before submitting.');
+    return;
+  }
+  try {
+    const result = await api('/api/customer/complaints', {
+      method:'POST',
+      body:JSON.stringify({
+        category,
+        description
+      })
+    });
+    addChatMessage(`Request #${result.complaint_id} is in the admin queue. You will see updates here.`, 'bot');
+    document.getElementById('complaintForm').reset();
+    confirmedLocation = false;
+    document.getElementById('complaintFields').disabled = true;
+    document.getElementById('locationStatus').textContent = 'Confirm your location again before submitting another request.';
+    refreshCustomer();
+  } catch (error) { addChatMessage(error.message); }
+}
+
+async function refreshWorkerTasks() {
+  try {
+    const result = await api('/api/worker/tasks');
+    renderWorkerTasks(result.tasks || []);
+  } catch (error) { showToast('Could not load assigned work', error.message); }
+}
+function renderWorkerTasks(tasks) {
+  const target = document.getElementById('workerTasks');
+  if (!tasks.length) {
+    target.innerHTML = '<div class="bg-cardWhite rounded-xl border border-hairline p-5 text-sm text-ink/60">No requests are assigned yet. The operations desk will assign work here.</div>';
+    return;
+  }
+  target.innerHTML = tasks.map(item=>`
+    <article class="bg-cardWhite rounded-2xl border border-hairline p-5">
+      <div class="flex flex-wrap justify-between gap-2"><div><b>Request #${Number(item.complaint_id)} · ${escapeHtml(item.category)}</b><p class="text-sm text-ink/65 mt-1">${escapeHtml(item.customer_name)} · ${escapeHtml(item.location)}</p></div><span class="h-fit rounded-full bg-stoneBg px-3 py-1 text-xs font-bold">${escapeHtml(item.status)}</span></div>
+      <p class="mt-3 text-sm">${escapeHtml(item.description)}</p>
+      <label class="block text-sm font-semibold mt-4" for="workerNote-${Number(item.complaint_id)}">Visit update or blocker
+        <textarea id="workerNote-${Number(item.complaint_id)}" maxlength="1000" rows="3" class="mt-1 w-full rounded-lg border border-hairline px-3 py-2 font-normal" placeholder="Explain what you did or why you cannot proceed">${escapeHtml(item.worker_note)}</textarea>
+      </label>
+      <div class="flex flex-wrap gap-2 mt-3">
+        <button onclick="submitWorkerUpdate(${Number(item.complaint_id)},'IN_PROGRESS')" class="rounded-lg bg-action px-3 py-2 text-xs text-white font-semibold">Working on it</button>
+        <button onclick="submitWorkerUpdate(${Number(item.complaint_id)},'BLOCKED')" class="rounded-lg border border-amberWatch/40 px-3 py-2 text-xs text-amberWatch font-semibold">Report a blocker</button>
+        <button onclick="submitWorkerUpdate(${Number(item.complaint_id)},'RESOLVED')" class="rounded-lg border border-sage/40 px-3 py-2 text-xs text-sage font-semibold">Mark resolved</button>
+      </div>
+    </article>`).join('');
+}
+async function submitWorkerUpdate(id, status) {
+  const note = document.getElementById(`workerNote-${id}`).value.trim();
+  if (!note) { showToast('Add a short update', 'Explain the work completed or what is blocking the visit.'); return; }
+  try {
+    await api('/api/worker/tasks/update', { method:'POST', body:JSON.stringify({ complaint_id:id, status, note }) });
+    showToast('Update sent', 'The admin and customer were notified in the demo portal.');
+    refreshWorkerTasks();
+  } catch (error) { showToast('Could not send update', error.message); }
+}
+
+// ===================== DEVELOPER DRAWER =====================
+function toggleDev(o){ document.getElementById('devDrawer').classList.toggle('hidden', !o); }
+function devTab(n){
+  ['liveApi','php','sql'].forEach(t=>{
+    document.getElementById('dev-'+t).classList.toggle('hidden', t!==n);
+  });
+  renderDevTabs(n);
+}
+function renderDevTabs(active='liveApi'){
+  const tabs=[['liveApi','API examples'],['php','backend.php (PHP)'],['sql','schema.sql']];
+  document.getElementById('devTabs').innerHTML = tabs.map(([k,l])=>`<button onclick="devTab('${k}')" class="px-3 py-1.5 rounded-md text-xs font-semibold ${k===active?'bg-action text-white':'bg-cardWhite border border-hairline'}">${l}</button>`).join('');
+}
+function renderDev(m){
+  const loads = Object.fromEntries(Object.values(m.dtrs).map(d=>[d.id,d.stressKva]));
+  const postLoads = Object.fromEntries(Object.values(m.dtrs).map(d=>[d.id,d.post]));
+  const loading = Object.fromEntries(Object.values(m.dtrs).map(d=>[d.id,d.postPct]));
+  const drops = Object.fromEntries(Object.values(m.dtrs).map(d=>[d.id,+d.vDev.toFixed(1)]));
+  document.getElementById('jsonTel').textContent = JSON.stringify({ feeder_id:'BESCOM-F11-DEMO', source:'demo',
+    transformers:Object.values(m.dtrs).map(d=>({ dtr_id:d.id, nameplate_kva:d.rating, active_load_kva:d.stressKva, loading_pct:d.stressPct, source:'simulated' })) }, null, 2);
+  document.getElementById('jsonScen').textContent = JSON.stringify({ request:{ base_loads_kva:loads, tie_12_kva_to_dtr01:state.transfers.t12, tie_13_kva_to_dtr01:state.transfers.t13, tie_23_kva_to_dtr03:state.transfers.t23 },
+    result:{ source:'demo_heuristic', post_transfer_load_kva:postLoads, post_transfer_loading_pct:loading, voltage_drop_pct:drops,
+      max_voltage_drop_pct:m.maxV, voltage_within_6pct:m.vOk, overloaded_transformers:m.postOver100.map(d=>d.id),
+      near_limit_transformers:m.postOver90.filter(d=>d.postPct<100).map(d=>d.id), requires_human_approval:true, autonomous_switching_permitted:false } }, null, 2);
+  document.getElementById('jsonFc').textContent = JSON.stringify({ request:{ loads_kva:loads },
+    result:{ horizon:'15_minutes', source:'demo_heuristic', predictions_kva:Object.fromEntries(Object.values(m.dtrs).map(d=>[d.id,+(d.stressKva*1.03).toFixed(1)])),
+      note:'Illustrative estimate only; this is not a trained or live forecasting model.' } }, null, 2);
+}
+
+const PHP = `<?php
+declare(strict_types=1);
+
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+    'httponly' => true,
+    'samesite' => 'Strict',
+]);
+ini_set('session.use_strict_mode', '1');
+session_start();
+
+function respond(int $status, array $payload): void
+{
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+    header('X-Content-Type-Options: nosniff');
+    $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    if ($json === false) {
+        http_response_code(500);
+        echo '{"error":"Could not encode the response."}';
+        exit;
+    }
+
+    echo $json;
+    exit;
+}
+
+set_exception_handler(static function (Throwable $error): void {
+    error_log($error->__toString());
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store');
+    }
+    echo '{"error":"Unexpected server error. Check the PHP server log."}';
+});
+
+function requireMethod(string $expected): void
+{
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+    if ($method !== $expected) {
+        header('Allow: ' . $expected);
+        respond(405, ['error' => 'Use ' . $expected . ' for this endpoint.']);
+    }
+}
+
+function readJsonBody(): array
+{
+    $raw = file_get_contents('php://input');
+    if ($raw === false || trim($raw) === '') {
+        return [];
+    }
+
+    try {
+        $payload = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+    } catch (JsonException $error) {
+        respond(400, ['error' => 'Request body must contain valid JSON.']);
+    }
+
+    if (!is_array($payload)) {
+        respond(400, ['error' => 'Request body must be a JSON object.']);
+    }
+
+    return $payload;
+}
+
+function requiredText(array $data, string $key, int $maxLength): string
+{
+    if (!isset($data[$key]) || !is_string($data[$key])) {
+        respond(422, ['error' => $key . ' must be text.']);
+    }
+    $value = trim($data[$key]);
+    if ($value === '' || strlen($value) > $maxLength) {
+        respond(422, ['error' => $key . ' is required and must be at most ' . $maxLength . ' characters.']);
+    }
+    return $value;
+}
+
+function numberField(array $data, string $key, float $default): float
+{
+    if (!array_key_exists($key, $data)) {
+        return $default;
+    }
+    if (!is_numeric($data[$key])) {
+        respond(422, ['error' => $key . ' must be a finite number.']);
+    }
+    $value = (float) $data[$key];
+    if (!is_finite($value)) {
+        respond(422, ['error' => $key . ' must be a finite number.']);
+    }
+    return $value;
+}
+
+function safeUser(array $user): array
+{
+    return [
+        'username' => $user['username'],
+        'full_name' => $user['full_name'],
+        'role' => $user['role'],
+        'service_area' => $user['service_area'],
+        'account_status' => $user['account_status'],
+    ];
+}
+
+function findUser(PDO $db, string $username): ?array
+{
+    $query = $db->prepare('SELECT * FROM users WHERE username = :username');
+    $query->execute(['username' => $username]);
+    $user = $query->fetch();
+    return $user === false ? null : $user;
+}
+
+function requireUser(PDO $db): array
+{
+    $username = $_SESSION['username'] ?? '';
+    if (!is_string($username) || $username === '') {
+        respond(401, ['error' => 'Please sign in again.']);
+    }
+
+    $user = findUser($db, $username);
+    if ($user === null) {
+        session_destroy();
+        respond(401, ['error' => 'Please sign in again.']);
+    }
+    if ($user['role'] === 'worker' && $user['account_status'] !== 'active') {
+        $_SESSION = [];
+        session_destroy();
+        respond(403, ['error' => 'This worker account is inactive. Contact an administrator.']);
+    }
+    return $user;
+}
+
+function requireRole(PDO $db, string $role): array
+{
+    $user = requireUser($db);
+    if ($user['role'] !== $role) {
+        respond(403, ['error' => 'Your account cannot access this panel.']);
+    }
+    return $user;
+}
+
+function notify(PDO $db, string $recipient, string $kind, string $message, string $channel = 'in-app'): void
+{
+    $query = $db->prepare(
+        'INSERT INTO notifications (recipient_username, kind, message, channel, created_at)
+         VALUES (:recipient, :kind, :message, :channel, :created_at)'
+    );
+    $query->execute([
+        'recipient' => $recipient,
+        'kind' => $kind,
+        'message' => $message,
+        'channel' => $channel,
+        'created_at' => gmdate(DATE_ATOM),
+    ]);
+}
+
+function getNotifications(PDO $db, string $username): array
+{
+    $query = $db->prepare(
+        'SELECT notification_id, kind, message, channel, created_at
+         FROM notifications WHERE recipient_username = :username
+         ORDER BY notification_id DESC LIMIT 50'
+    );
+    $query->execute(['username' => $username]);
+    return $query->fetchAll();
+}
+
+function getCustomerComplaints(PDO $db, string $username): array
+{
+    $query = $db->prepare(
+        'SELECT c.complaint_id, c.category, c.description, c.location, c.status,
+                c.worker_note, c.penalty_review, c.created_at, c.updated_at,
+                w.full_name AS worker_name
+         FROM complaints c
+         LEFT JOIN users w ON w.username = c.assigned_worker
+         WHERE c.customer_username = :username
+         ORDER BY c.complaint_id DESC LIMIT 50'
+    );
+    $query->execute(['username' => $username]);
+    return $query->fetchAll();
+}
+
+function getAdminComplaints(PDO $db): array
+{
+    return $db->query(
+        'SELECT c.complaint_id, c.customer_username, c.category, c.description,
+                c.location, c.status, c.assigned_worker, c.worker_note,
+                c.penalty_review, c.created_at, c.updated_at,
+                u.full_name AS customer_name, u.phone AS customer_phone,
+                u.email AS customer_email, w.full_name AS worker_name
+         FROM complaints c
+         JOIN users u ON u.username = c.customer_username
+         LEFT JOIN users w ON w.username = c.assigned_worker
+         ORDER BY CASE c.status
+           WHEN "OPEN" THEN 0 WHEN "ASSIGNED" THEN 1 WHEN "IN_PROGRESS" THEN 2
+           WHEN "BLOCKED" THEN 3 ELSE 4 END, c.complaint_id DESC'
+    )->fetchAll();
+}
+
+function insertComplaint(PDO $db, string $customer, string $category, string $description, string $location): int
+{
+    $now = gmdate(DATE_ATOM);
+    $query = $db->prepare(
+        'INSERT INTO complaints
+         (customer_username, category, description, location, status, created_at, updated_at)
+         VALUES (:customer, :category, :description, :location, "OPEN", :created_at, :updated_at)'
+    );
+    $query->execute([
+        'customer' => $customer,
+        'category' => $category,
+        'description' => $description,
+        'location' => $location,
+        'created_at' => $now,
+        'updated_at' => $now,
+    ]);
+    return (int) $db->lastInsertId();
+}
+
+$dbPath = getenv('BESCOM_DB_PATH') ?: __DIR__ . '/bescom-demo.sqlite';
+if (!class_exists(PDO::class) || !in_array('sqlite', PDO::getAvailableDrivers(), true)) {
+    respond(500, ['error' => 'PHP PDO SQLite is required to run the demo backend.']);
+}
+try {
+    $db = new PDO('sqlite:' . $dbPath, null, null, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ]);
+} catch (PDOException $error) {
+    respond(500, ['error' => 'PHP PDO SQLite is required to run the demo backend.']);
+}
+
+try {
+    $db->exec('PRAGMA foreign_keys = ON');
+    $schema = [
+        'CREATE TABLE IF NOT EXISTS users (
+            username TEXT PRIMARY KEY,
+            full_name TEXT NOT NULL,
+            role TEXT NOT NULL CHECK (role IN ("admin", "customer", "worker")),
+            password_hash TEXT NOT NULL,
+            phone TEXT NOT NULL DEFAULT "",
+            email TEXT NOT NULL DEFAULT "",
+            service_area TEXT NOT NULL DEFAULT "",
+            account_status TEXT NOT NULL DEFAULT "active"
+        )',
+        'CREATE TABLE IF NOT EXISTS usage_samples (
+            sample_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_username TEXT NOT NULL REFERENCES users(username),
+            month TEXT NOT NULL,
+            kwh REAL NOT NULL,
+            UNIQUE(customer_username, month)
+        )',
+        'CREATE TABLE IF NOT EXISTS complaints (
+            complaint_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_username TEXT NOT NULL REFERENCES users(username),
+            category TEXT NOT NULL,
+            description TEXT NOT NULL,
+            location TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT "OPEN",
+            assigned_worker TEXT REFERENCES users(username),
+            worker_note TEXT NOT NULL DEFAULT "",
+            penalty_review INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )',
+        'CREATE TABLE IF NOT EXISTS notifications (
+            notification_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            recipient_username TEXT NOT NULL REFERENCES users(username),
+            kind TEXT NOT NULL,
+            message TEXT NOT NULL,
+            channel TEXT NOT NULL DEFAULT "in-app",
+            created_at TEXT NOT NULL
+        )',
+        'CREATE TABLE IF NOT EXISTS otp_challenges (
+            username TEXT PRIMARY KEY REFERENCES users(username),
+            code_hash TEXT NOT NULL,
+            expires_at INTEGER NOT NULL,
+            attempts INTEGER NOT NULL DEFAULT 0
+        )',
+    ];
+    foreach ($schema as $statement) {
+        $db->exec($statement);
+    }
+
+    $seedUsers = [
+        ['admin', 'Demo Administrator', 'admin', '', 'admin@example.invalid'],
+        ['BES-10001', 'Asha Rao', 'customer', 'Whitefield', 'asha@example.invalid'],
+        ['worker01', 'Ravi Kumar', 'worker', '', 'worker@example.invalid'],
+    ];
+    $insertUser = $db->prepare(
+        'INSERT OR IGNORE INTO users
+         (username, full_name, role, password_hash, phone, email, service_area, account_status)
+         VALUES (:username, :full_name, :role, :password_hash, :phone, :email, :service_area, "active")'
+    );
+    foreach ($seedUsers as [$username, $name, $role, $area, $email]) {
+        if (findUser($db, $username) !== null) {
+            continue;
+        }
+        $insertUser->execute([
+            'username' => $username,
+            'full_name' => $name,
+            'role' => $role,
+            'password_hash' => password_hash('Demo123!', PASSWORD_DEFAULT),
+            'phone' => $role === 'customer' ? '+91 90000 10001' : '',
+            'email' => $email,
+            'service_area' => $area,
+        ]);
+    }
+
+    $usageSamples = [
+        ['2026-06', 248], ['2026-07', 276], ['2026-08', 262],
+        ['2026-09', 291], ['2026-10', 303], ['2026-11', 158],
+    ];
+    $insertUsage = $db->prepare(
+        'INSERT OR IGNORE INTO usage_samples (customer_username, month, kwh)
+         VALUES ("BES-10001", :month, :kwh)'
+    );
+    foreach ($usageSamples as [$month, $kwh]) {
+        $insertUsage->execute(['month' => $month, 'kwh' => $kwh]);
+    }
+
+    if ((int) $db->query('SELECT COUNT(*) FROM complaints')->fetchColumn() === 0) {
+        $sampleId = insertComplaint(
+            $db,
+            'BES-10001',
+            'Low voltage',
+            'Lights dim briefly during the evening peak.',
+            'Whitefield'
+        );
+        notify($db, 'admin', 'new_complaint', 'Demo complaint #' . $sampleId . ' is waiting for review.');
+    }
+} catch (PDOException $error) {
+    respond(500, ['error' => 'Could not initialize the demo database.']);
+}
+
+$path = (string) (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/');
+$method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+
+if ($path === '/' || $path === '/bescom-feeder-dashboard.html') {
+    header('Content-Type: text/html; charset=utf-8');
+    readfile(__DIR__ . '/bescom-feeder-dashboard.html');
+    exit;
+}
+
+if ($path === '/health' && $method === 'GET') {
+    respond(200, ['status' => 'ok', 'source' => 'demo']);
+}
+
+if ($path === '/api/auth/login') {
+    requireMethod('POST');
+    $request = readJsonBody();
+    $username = $request['username'] ?? '';
+    $password = $request['password'] ?? '';
+    if (!is_string($username) || !is_string($password)) {
+        respond(422, ['error' => 'Username and password must be text.']);
+    }
+    $username = trim($username);
+    $user = $username === '' ? null : findUser($db, $username);
+    if ($user === null || !password_verify($password, $user['password_hash'])) {
+        respond(401, ['error' => 'Username or password is incorrect.']);
+    }
+    if ($user['account_status'] === 'suspended') {
+        respond(403, ['error' => 'This demo account is suspended. Contact the service desk.']);
+    }
+    if ($user['role'] === 'worker' && $user['account_status'] !== 'active') {
+        respond(403, ['error' => 'This worker account is inactive. Contact an administrator.']);
+    }
+
+    if ($user['role'] !== 'customer') {
+        $_SESSION = [];
+        session_regenerate_id(true);
+        $_SESSION['username'] = $user['username'];
+        respond(200, ['authenticated' => true, 'user' => safeUser($user)]);
+    }
+
+    $code = (string) random_int(100000, 999999);
+    $challenge = $db->prepare(
+        'INSERT INTO otp_challenges (username, code_hash, expires_at, attempts)
+         VALUES (:username, :code_hash, :expires_at, 0)
+         ON CONFLICT(username) DO UPDATE SET code_hash = excluded.code_hash,
+           expires_at = excluded.expires_at, attempts = 0'
+    );
+    $challenge->execute([
+        'username' => $username,
+        'code_hash' => password_hash($code, PASSWORD_DEFAULT),
+        'expires_at' => time() + 300,
+    ]);
+    $_SESSION = [];
+    session_regenerate_id(true);
+    $_SESSION['pending_username'] = $username;
+    respond(200, [
+        'requires_otp' => true,
+        'message' => 'Demo one-time code created. No SMS is sent in this prototype.',
+        'demo_otp' => $code,
+        'expires_in_seconds' => 300,
+    ]);
+}
+
+if ($path === '/api/auth/verify-otp') {
+    requireMethod('POST');
+    $username = $_SESSION['pending_username'] ?? '';
+    if (!is_string($username) || $username === '') {
+        respond(401, ['error' => 'Start sign-in again to request a new code.']);
+    }
+    $request = readJsonBody();
+    $code = $request['code'] ?? '';
+    if (!is_string($code)) {
+        respond(422, ['error' => 'Code must be text.']);
+    }
+    $code = trim($code);
+    $query = $db->prepare('SELECT * FROM otp_challenges WHERE username = :username');
+    $query->execute(['username' => $username]);
+    $challenge = $query->fetch();
+    if ($challenge === false) {
+        unset($_SESSION['pending_username']);
+        respond(401, ['error' => 'No active code. Sign in again.']);
+    }
+    if ((int) $challenge['expires_at'] < time() || (int) $challenge['attempts'] >= 5) {
+        $db->prepare('DELETE FROM otp_challenges WHERE username = :username')->execute(['username' => $username]);
+        unset($_SESSION['pending_username']);
+        respond(401, ['error' => 'The code expired or its attempt limit was reached. Sign in again.']);
+    }
+    if (!password_verify($code, $challenge['code_hash'])) {
+        $db->prepare('UPDATE otp_challenges SET attempts = attempts + 1 WHERE username = :username')
+            ->execute(['username' => $username]);
+        respond(401, ['error' => 'That code is not correct.']);
+    }
+
+    $db->prepare('DELETE FROM otp_challenges WHERE username = :username')->execute(['username' => $username]);
+    $user = findUser($db, $username);
+    if ($user === null) {
+        unset($_SESSION['pending_username']);
+        respond(401, ['error' => 'Account not found.']);
+    }
+    session_regenerate_id(true);
+    unset($_SESSION['pending_username']);
+    $_SESSION['username'] = $username;
+    respond(200, ['authenticated' => true, 'user' => safeUser($user)]);
+}
+
+if ($path === '/api/auth/me') {
+    requireMethod('GET');
+    respond(200, ['user' => safeUser(requireUser($db))]);
+}
+
+if ($path === '/api/auth/logout') {
+    requireMethod('POST');
+    $_SESSION = [];
+    if (ini_get('session.use_cookies')) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000, $params['path'], '', $params['secure'], $params['httponly']);
+    }
+    session_destroy();
+    respond(200, ['ok' => true]);
+}
+
+if ($path === '/api/customer/overview') {
+    requireMethod('GET');
+    $user = requireRole($db, 'customer');
+    $usageQuery = $db->prepare(
+        'SELECT month, kwh FROM usage_samples WHERE customer_username = :username ORDER BY month'
+    );
+    $usageQuery->execute(['username' => $user['username']]);
+    respond(200, [
+        'user' => safeUser($user),
+        'usage' => $usageQuery->fetchAll(),
+        'complaints' => getCustomerComplaints($db, $user['username']),
+        'notifications' => getNotifications($db, $user['username']),
+    ]);
+}
+
+if ($path === '/api/location/confirm') {
+    requireMethod('POST');
+    $user = requireRole($db, 'customer');
+    $request = readJsonBody();
+    $location = requiredText($request, 'location', 180);
+    $normalized = strtolower($location);
+    $serviceAreas = ['whitefield', 'bengaluru', 'bangalore', 'yelahanka', 'koramangala', 'electronic city', 'rajajinagar'];
+    $inCoverage = false;
+    foreach ($serviceAreas as $area) {
+        if (strpos($normalized, $area) !== false) {
+            $inCoverage = true;
+            break;
+        }
+    }
+    $matchesAccount = $user['service_area'] !== ''
+        && strpos($normalized, strtolower($user['service_area'])) !== false;
+    $confirmed = $inCoverage && $matchesAccount;
+    if ($confirmed) {
+        $_SESSION['confirmed_location'] = $user['service_area'];
+    } else {
+        unset($_SESSION['confirmed_location']);
+    }
+    respond(200, [
+        'confirmed' => $confirmed,
+        'service_area_valid' => $inCoverage,
+        'matches_registered_area' => $matchesAccount,
+        'registered_area' => $user['service_area'],
+        'message' => $confirmed
+            ? 'Location confirmed against the demo coverage list and your account.'
+            : 'We could not confirm that location for this account. Check the spelling or contact the service desk.',
+    ]);
+}
+
+if ($path === '/api/customer/complaints') {
+    requireMethod('POST');
+    $user = requireRole($db, 'customer');
+    $location = $_SESSION['confirmed_location'] ?? '';
+    if (!is_string($location) || $location === '' || $location !== $user['service_area']) {
+        respond(403, ['error' => 'Confirm your registered service location before submitting a complaint.']);
+    }
+    $request = readJsonBody();
+    $category = requiredText($request, 'category', 80);
+    $description = requiredText($request, 'description', 1000);
+    $complaintId = insertComplaint($db, $user['username'], $category, $description, $location);
+    $admins = $db->query('SELECT username FROM users WHERE role = "admin"')->fetchAll();
+    foreach ($admins as $admin) {
+        notify($db, $admin['username'], 'new_complaint', 'New customer complaint #' . $complaintId . ' is ready for review.');
+    }
+    unset($_SESSION['confirmed_location']);
+    respond(201, ['complaint_id' => $complaintId, 'status' => 'OPEN', 'message' => 'Your demo complaint was submitted to the admin queue.']);
+}
+
+if ($path === '/api/admin/overview') {
+    requireMethod('GET');
+    requireRole($db, 'admin');
+    $complaints = getAdminComplaints($db);
+    $customers = $db->query(
+        'SELECT username, full_name, phone, email, service_area, account_status
+         FROM users WHERE role = "customer" ORDER BY full_name'
+    )->fetchAll();
+    $workers = $db->query(
+        'SELECT username, full_name, account_status FROM users
+         WHERE role = "worker" AND account_status = "active" ORDER BY full_name'
+    )->fetchAll();
+    $workerAccounts = $db->query(
+        'SELECT username, full_name, account_status FROM users WHERE role = "worker" ORDER BY full_name'
+    )->fetchAll();
+    $notifications = getNotifications($db, 'admin');
+    $openCount = count(array_filter($complaints, static fn (array $case): bool => !in_array($case['status'], ['RESOLVED', 'CLOSED'], true)));
+    $unassignedCount = count(array_filter($complaints, static fn (array $case): bool => $case['assigned_worker'] === null && $case['status'] !== 'RESOLVED'));
+    $workerUpdates = count(array_filter($complaints, static fn (array $case): bool => $case['worker_note'] !== ''));
+    $penaltyCount = count(array_filter($complaints, static fn (array $case): bool => (int) $case['penalty_review'] === 1));
+    respond(200, [
+        'complaints' => $complaints,
+        'customers' => $customers,
+        'workers' => $workers,
+        'worker_accounts' => $workerAccounts,
+        'notifications' => $notifications,
+        'metrics' => [
+            'open' => $openCount,
+            'unassigned' => $unassignedCount,
+            'worker_updates' => $workerUpdates,
+            'penalty_reviews' => $penaltyCount,
+        ],
+    ]);
+}
+
+if ($path === '/api/admin/workers') {
+    requireMethod('POST');
+    requireRole($db, 'admin');
+    $request = readJsonBody();
+    $username = requiredText($request, 'username', 64);
+    if (!preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$/D', $username)) {
+        respond(422, ['error' => 'Worker ID must be 3–64 letters, numbers, dots, underscores, or hyphens.']);
+    }
+    $fullName = requiredText($request, 'full_name', 120);
+    $password = $request['password'] ?? null;
+    if (!is_string($password) || trim($password) === '' || strlen($password) < 10 || strlen($password) > 128) {
+        respond(422, ['error' => 'Set a password between 10 and 128 characters.']);
+    }
+    if (findUser($db, $username) !== null) {
+        respond(409, ['error' => 'That worker ID is already in use.']);
+    }
+
+    $insert = $db->prepare(
+        'INSERT OR IGNORE INTO users
+         (username, full_name, role, password_hash, phone, email, service_area, account_status)
+         VALUES (:username, :full_name, "worker", :password_hash, "", "", "", "active")'
+    );
+    $insert->execute([
+        'username' => $username,
+        'full_name' => $fullName,
+        'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+    ]);
+    if ($insert->rowCount() !== 1) {
+        respond(409, ['error' => 'That worker ID is already in use.']);
+    }
+    $worker = findUser($db, $username);
+    if ($worker === null) {
+        respond(500, ['error' => 'Worker account was created but could not be loaded.']);
+    }
+    respond(201, ['worker' => safeUser($worker)]);
+}
+
+if ($path === '/api/admin/workers/status') {
+    requireMethod('POST');
+    requireRole($db, 'admin');
+    $request = readJsonBody();
+    $username = requiredText($request, 'username', 64);
+    $active = $request['active'] ?? null;
+    if (!is_bool($active)) {
+        respond(422, ['error' => 'Choose whether worker access should be active.']);
+    }
+    $worker = findUser($db, $username);
+    if ($worker === null || $worker['role'] !== 'worker') {
+        respond(404, ['error' => 'Worker account not found.']);
+    }
+    if (!$active) {
+        $assigned = $db->prepare(
+            'SELECT COUNT(*) FROM complaints
+             WHERE assigned_worker = :username AND status NOT IN ("RESOLVED", "CLOSED")'
+        );
+        $assigned->execute(['username' => $username]);
+        if ((int) $assigned->fetchColumn() > 0) {
+            respond(409, ['error' => 'Reassign or resolve this worker’s open requests before deactivating access.']);
+        }
+    }
+    $status = $active ? 'active' : 'inactive';
+    $db->prepare('UPDATE users SET account_status = :status WHERE username = :username')
+        ->execute(['status' => $status, 'username' => $username]);
+    respond(200, ['ok' => true, 'account_status' => $status]);
+}
+
+if ($path === '/api/admin/complaints/action') {
+    requireMethod('POST');
+    requireRole($db, 'admin');
+    $request = readJsonBody();
+    $complaintId = filter_var($request['complaint_id'] ?? null, FILTER_VALIDATE_INT);
+    if ($complaintId === false || $complaintId < 1) {
+        respond(422, ['error' => 'A valid complaint_id is required.']);
+    }
+    $caseQuery = $db->prepare('SELECT * FROM complaints WHERE complaint_id = :id');
+    $caseQuery->execute(['id' => $complaintId]);
+    $case = $caseQuery->fetch();
+    if ($case === false) {
+        respond(404, ['error' => 'Complaint not found.']);
+    }
+
+    $action = (string) ($request['action'] ?? '');
+    $now = gmdate(DATE_ATOM);
+    if ($action === 'assign') {
+        $workerUsername = requiredText($request, 'worker_username', 64);
+        $worker = findUser($db, $workerUsername);
+        if ($worker === null || $worker['role'] !== 'worker' || $worker['account_status'] !== 'active') {
+            respond(422, ['error' => 'Choose an active demo worker.']);
+        }
+        $status = $case['status'] === 'OPEN' ? 'ASSIGNED' : $case['status'];
+        $db->prepare(
+            'UPDATE complaints SET assigned_worker = :worker, status = :status, updated_at = :updated
+             WHERE complaint_id = :id'
+        )->execute(['worker' => $workerUsername, 'status' => $status, 'updated' => $now, 'id' => $complaintId]);
+        notify($db, $workerUsername, 'assignment', 'Complaint #' . $complaintId . ' was assigned to you.');
+        notify($db, $case['customer_username'], 'case_update', 'A field worker was assigned to complaint #' . $complaintId . '.');
+    } elseif ($action === 'status') {
+        $status = $request['status'] ?? '';
+        if (!is_string($status)) {
+            respond(422, ['error' => 'Unsupported complaint status.']);
+        }
+        if (!in_array($status, ['OPEN', 'IN_PROGRESS', 'BLOCKED', 'RESOLVED'], true)) {
+            respond(422, ['error' => 'Unsupported complaint status.']);
+        }
+        $db->prepare('UPDATE complaints SET status = :status, updated_at = :updated WHERE complaint_id = :id')
+            ->execute(['status' => $status, 'updated' => $now, 'id' => $complaintId]);
+        notify($db, $case['customer_username'], 'case_update', 'Admin updated complaint #' . $complaintId . ' to ' . $status . '.');
+    } elseif ($action === 'penalty_review') {
+        $db->prepare('UPDATE complaints SET penalty_review = 1, updated_at = :updated WHERE complaint_id = :id')
+            ->execute(['updated' => $now, 'id' => $complaintId]);
+        notify($db, 'admin', 'penalty_review', 'Complaint #' . $complaintId . ' was flagged for a human penalty review.');
+    } else {
+        respond(422, ['error' => 'Unsupported admin action.']);
+    }
+
+    respond(200, ['ok' => true]);
+}
+
+if ($path === '/api/admin/customers/notice') {
+    requireMethod('POST');
+    requireRole($db, 'admin');
+    $request = readJsonBody();
+    $customerUsername = requiredText($request, 'customer_username', 64);
+    $channel = $request['channel'] ?? '';
+    if (!is_string($channel)) {
+        respond(422, ['error' => 'Choose email, SMS, or call.']);
+    }
+    if (!in_array($channel, ['email', 'sms', 'call'], true)) {
+        respond(422, ['error' => 'Choose email, SMS, or call.']);
+    }
+    $customer = findUser($db, $customerUsername);
+    if ($customer === null || $customer['role'] !== 'customer') {
+        respond(404, ['error' => 'Customer account not found.']);
+    }
+    notify(
+        $db,
+        $customerUsername,
+        'removal_notice',
+        'Demo service review notice: an administrator requested a conversation before any account or service change. This is not a disconnection.',
+        $channel
+    );
+    respond(200, ['ok' => true, 'message' => 'Demo notice recorded. No email, SMS, or call was sent.']);
+}
+
+if ($path === '/api/admin/customers/request-removal') {
+    requireMethod('POST');
+    requireRole($db, 'admin');
+    $request = readJsonBody();
+    $customerUsername = requiredText($request, 'customer_username', 64);
+    $customer = findUser($db, $customerUsername);
+    if ($customer === null || $customer['role'] !== 'customer') {
+        respond(404, ['error' => 'Customer account not found.']);
+    }
+    $noticeQuery = $db->prepare(
+        'SELECT COUNT(*) FROM notifications
+         WHERE recipient_username = :username AND kind = "removal_notice"
+           AND created_at >= :cutoff'
+    );
+    $noticeQuery->execute([
+        'username' => $customerUsername,
+        'cutoff' => gmdate(DATE_ATOM, time() - 30 * 86400),
+    ]);
+    if ((int) $noticeQuery->fetchColumn() < 1) {
+        respond(409, ['error' => 'Send a customer notice before requesting removal review.']);
+    }
+    $db->prepare('UPDATE users SET account_status = "pending_removal" WHERE username = :username')
+        ->execute(['username' => $customerUsername]);
+    notify($db, $customerUsername, 'removal_review', 'An account-removal request is pending human review. Your service has not been disconnected.');
+    respond(200, ['ok' => true, 'account_status' => 'pending_removal']);
+}
+
+if ($path === '/api/worker/tasks') {
+    requireMethod('GET');
+    $worker = requireRole($db, 'worker');
+    $query = $db->prepare(
+        'SELECT c.complaint_id, c.category, c.description, c.location, c.status,
+                c.worker_note, c.created_at, c.updated_at, u.full_name AS customer_name
+         FROM complaints c JOIN users u ON u.username = c.customer_username
+         WHERE c.assigned_worker = :worker ORDER BY c.complaint_id DESC'
+    );
+    $query->execute(['worker' => $worker['username']]);
+    respond(200, ['user' => safeUser($worker), 'tasks' => $query->fetchAll()]);
+}
+
+if ($path === '/api/worker/tasks/update') {
+    requireMethod('POST');
+    $worker = requireRole($db, 'worker');
+    $request = readJsonBody();
+    $complaintId = filter_var($request['complaint_id'] ?? null, FILTER_VALIDATE_INT);
+    $status = $request['status'] ?? '';
+    if (!is_string($status)) {
+        respond(422, ['error' => 'Choose a valid work status.']);
+    }
+    $note = requiredText($request, 'note', 1000);
+    if ($complaintId === false || $complaintId < 1) {
+        respond(422, ['error' => 'A valid complaint_id is required.']);
+    }
+    if (!in_array($status, ['IN_PROGRESS', 'BLOCKED', 'RESOLVED'], true)) {
+        respond(422, ['error' => 'Choose a valid work status.']);
+    }
+    $caseQuery = $db->prepare('SELECT * FROM complaints WHERE complaint_id = :id AND assigned_worker = :worker');
+    $caseQuery->execute(['id' => $complaintId, 'worker' => $worker['username']]);
+    $case = $caseQuery->fetch();
+    if ($case === false) {
+        respond(404, ['error' => 'This complaint is not assigned to your account.']);
+    }
+    $now = gmdate(DATE_ATOM);
+    $db->prepare(
+        'UPDATE complaints SET status = :status, worker_note = :note, updated_at = :updated
+         WHERE complaint_id = :id'
+    )->execute(['status' => $status, 'note' => $note, 'updated' => $now, 'id' => $complaintId]);
+
+    $message = 'Worker update for complaint #' . $complaintId . ': ' . $status . ' — ' . $note;
+    $admins = $db->query('SELECT username FROM users WHERE role = "admin"')->fetchAll();
+    foreach ($admins as $admin) {
+        notify($db, $admin['username'], 'worker_update', $message);
+    }
+    notify($db, $case['customer_username'], 'case_update', $message);
+    respond(200, ['ok' => true]);
+}
+
+if ($path === '/api/v1/telemetry/15min') {
+    requireMethod('GET');
+    $ratings = ['DTR-01' => 250.0, 'DTR-02' => 200.0, 'DTR-03' => 160.0];
+    $loads = ['DTR-01' => 212.5, 'DTR-02' => 212.5, 'DTR-03' => 150.4];
+    $transformers = [];
+    foreach ($ratings as $id => $rating) {
+        $load = $loads[$id];
+        $transformers[] = [
+            'dtr_id' => $id,
+            'nameplate_kva' => $rating,
+            'active_load_kva' => $load,
+            'loading_pct' => round(($load / $rating) * 100, 1),
+            'source' => 'simulated',
+        ];
+    }
+    respond(200, ['feeder_id' => 'BESCOM-F11-DEMO', 'source' => 'demo', 'transformers' => $transformers]);
+}
+
+if ($path === '/api/v1/scenario/simulate-transfer') {
+    requireMethod('POST');
+    $request = readJsonBody();
+    $ratings = ['DTR-01' => 250.0, 'DTR-02' => 200.0, 'DTR-03' => 160.0];
+    $loads = $request['base_loads_kva'] ?? ['DTR-01' => 212.5, 'DTR-02' => 212.5, 'DTR-03' => 150.4];
+    if (!is_array($loads)) {
+        respond(422, ['error' => 'base_loads_kva must be an object.']);
+    }
+    $validatedLoads = [];
+    foreach ($ratings as $id => $rating) {
+        if (!isset($loads[$id]) || !is_numeric($loads[$id])
+            || !is_finite((float) $loads[$id]) || (float) $loads[$id] < 0) {
+            respond(422, ['error' => 'Valid non-negative base loads are required for all three transformers.']);
+        }
+        $validatedLoads[$id] = (float) $loads[$id];
+    }
+    $t12 = numberField($request, 'tie_12_kva_to_dtr01', 0);
+    $t13 = numberField($request, 'tie_13_kva_to_dtr01', 0);
+    $t23 = numberField($request, 'tie_23_kva_to_dtr03', 0);
+    if (!is_finite($t12) || !is_finite($t13) || !is_finite($t23)
+        || abs($t12) > 60 || abs($t13) > 50 || abs($t23) > 40) {
+        respond(422, ['error' => 'Transfer must be finite and within demo tie-link capacities.']);
+    }
+    $post = [
+        'DTR-01' => $validatedLoads['DTR-01'] + $t12 + $t13,
+        'DTR-02' => $validatedLoads['DTR-02'] - $t12 - $t23,
+        'DTR-03' => $validatedLoads['DTR-03'] - $t13 + $t23,
+    ];
+    $loading = [];
+    $drop = [];
+    foreach ($post as $id => $load) {
+        if ($load < 0) {
+            respond(422, ['error' => 'Transfer cannot move more load than a transformer carries.']);
+        }
+        $loading[$id] = round(($load / $ratings[$id]) * 100, 1);
+        $drop[$id] = round(($load / $ratings[$id]) * 3.8, 1);
+    }
+    $overloaded = array_keys(array_filter($loading, static fn (float $pct): bool => $pct >= 100));
+    $nearLimit = array_keys(array_filter($loading, static fn (float $pct): bool => $pct >= 90 && $pct < 100));
+    $maxDrop = max($drop);
+    respond(200, [
+        'source' => 'demo_heuristic',
+        'post_transfer_load_kva' => $post,
+        'post_transfer_loading_pct' => $loading,
+        'voltage_drop_pct' => $drop,
+        'max_voltage_drop_pct' => $maxDrop,
+        'voltage_within_6pct' => $maxDrop <= 6,
+        'overloaded_transformers' => $overloaded,
+        'near_limit_transformers' => $nearLimit,
+        'requires_human_approval' => true,
+        'autonomous_switching_permitted' => false,
+    ]);
+}
+
+if ($path === '/api/v1/forecast/predict') {
+    requireMethod('POST');
+    $request = readJsonBody();
+    $loads = $request['loads_kva'] ?? ['DTR-01' => 212.5, 'DTR-02' => 212.5, 'DTR-03' => 150.4];
+    if (!is_array($loads)) {
+        respond(422, ['error' => 'loads_kva must be an object.']);
+    }
+    $predictions = [];
+    foreach (['DTR-01', 'DTR-02', 'DTR-03'] as $id) {
+        if (!isset($loads[$id]) || !is_numeric($loads[$id]) || !is_finite((float) $loads[$id]) || (float) $loads[$id] < 0) {
+            respond(422, ['error' => 'Valid non-negative loads are required for all three transformers.']);
+        }
+        $predictions[$id] = round((float) $loads[$id] * 1.03, 1);
+    }
+    respond(200, [
+        'horizon' => '15_minutes',
+        'source' => 'demo_heuristic',
+        'predictions_kva' => $predictions,
+        'note' => 'Illustrative estimate only; not a trained or live forecasting model.',
+    ]);
+}
+
+respond(404, ['error' => 'Endpoint not found.']);
+`;
+const SQL = `-- BESCOM Smart Grid Digital Twin: PostgreSQL Time-Series & Audit Schema
+CREATE TABLE dtr_assets (
+    dtr_id VARCHAR(16) PRIMARY KEY,
+    feeder_id VARCHAR(32) NOT NULL,
+    nameplate_kva NUMERIC(6,2) NOT NULL,
+    installed_year INT,
+    hv_kv NUMERIC(5,2) DEFAULT 11.00,
+    lv_kv NUMERIC(5,3) DEFAULT 0.415
+);
+
+CREATE TABLE telemetry_15min (
+    id BIGSERIAL PRIMARY KEY,
+    recorded_at TIMESTAMPTZ NOT NULL,
+    dtr_id VARCHAR(16) REFERENCES dtr_assets(dtr_id),
+    active_kva NUMERIC(7,2) NOT NULL,
+    loading_pct NUMERIC(5,2) NOT NULL,
+    lt_voltage_kv NUMERIC(5,3) NOT NULL,
+    anomaly_score NUMERIC(4,3) NOT NULL,
+    anomaly_reason TEXT,
+    quality_gate_passed BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE operator_audit_log (
+    audit_id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    operator_id VARCHAR(32) NOT NULL,
+    scenario_label VARCHAR(64) NOT NULL,
+    switching_plan JSONB NOT NULL,
+    post_transfer_loadings JSONB NOT NULL,
+    decision VARCHAR(16) CHECK (decision IN ('APPROVED', 'REJECTED')) NOT NULL
+);`;
+function copyCode(id){
+  const t=document.getElementById(id).textContent;
+  if (navigator.clipboard) navigator.clipboard.writeText(t).then(()=>showToast('Copied','Code copied to clipboard.'));
+  else { const a=document.createElement('textarea'); a.value=t; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); showToast('Copied','Code copied to clipboard.'); }
+}
+function downloadBundle(){
+  const url = URL.createObjectURL(new Blob([PHP],{type:'application/x-httpd-php'}));
+  const a=document.createElement('a'); a.href=url; a.download='backend.php'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast('Downloaded','Saved backend.php');
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('authThemeToggle').addEventListener('click', toggleTheme);
+  document.getElementById('headerThemeToggle').addEventListener('click', toggleTheme);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (!document.documentElement.dataset.theme) {
+      syncThemeButtons();
+      applyChartTheme();
+      if (signedInUser?.role === 'admin') renderAll();
+    }
+  });
+  syncThemeButtons();
+  document.getElementById('phpSrc').textContent = PHP;
+  document.getElementById('sqlSrc').textContent = SQL;
+  renderDevTabs();
+  renderAll();
+  document.getElementById('loginForm').addEventListener('submit', submitLogin);
+  document.getElementById('otpForm').addEventListener('submit', submitOtp);
+  document.getElementById('locationForm').addEventListener('submit', confirmCustomerLocation);
+  document.getElementById('complaintForm').addEventListener('submit', submitCustomerComplaint);
+  document.getElementById('workerCreateForm').addEventListener('submit', createWorker);
+  initializePortal();
+});
+</script>
+</body>
+</html>
