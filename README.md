@@ -1,5 +1,6 @@
 # BESCOM Feeder Digital Twin & Outage Operations Desk
 
+> 🚀 **Live Demo:** [https://bescom.alwaysdata.net](https://bescom.alwaysdata.net/)  
 > **Theme 04:** AI-Powered Smart Grid Digital Twin for Representative 11 kV Feeders  
 > **Team:** Caffeine Addicts (Team 51) · CMR University  
 > **Venue:** D, EGL-02 · BESCOM PowerHack 2026
@@ -109,7 +110,14 @@ BESCOM_PowerHack_Caffeine_Addicts_2026/
 
 ## 🚀 Quickstart Guide
 
-### Option 1: Run with PHP Built-in Server (Recommended)
+### Option 1: Live Cloud Application (Instant Access)
+
+Access the live digital twin platform deployed at:  
+👉 **[https://bescom.alwaysdata.net](https://bescom.alwaysdata.net/)**
+
+---
+
+### Option 2: Run Locally with PHP Built-in Server
 
 Requires PHP 8.0+ with PDO SQLite extension enabled:
 
@@ -124,7 +132,7 @@ php -S 127.0.0.1:8000 backend.php
 
 Then open your browser at **`http://127.0.0.1:8000`**.
 
-### Option 2: Standalone Static Preview
+### Option 3: Standalone Static Preview
 
 You can open `index.html` or `bescom-feeder-dashboard.html` directly in any modern browser to test the interactive simulation and UI components in client-side demonstration mode.
 
